@@ -30,7 +30,31 @@ document.addEventListener('DOMContentLoaded', () => {
     .getElementById('btnAddPerson')
     .addEventListener('click', showOverlay);
   document.getElementById('btnAddIdea').addEventListener('click', showOverlay);
+
+  document
+    .getElementById('btnSavePerson')
+    .addEventListener('click', savePerson);
+  document.getElementById('btnSaveIdea').addEventListener('click', saveIdea);
+
+  loadInitialData();
+
+  //TODO: add the `onSnapshot` listener
 });
+
+function loadInitialData() {
+  //load the people collection and display
+  //load the gift-ideas collection and display
+}
+
+function savePerson() {
+  //take the information from the dialog, save as an object, push to firestore
+  //TODO: update this function to work as an INSERT or UPDATE method
+}
+
+function saveIdea() {
+  //take the information from the dialog, save as an object, push to firestore
+  //TODO: update this function to work as an INSERT or UPDATE method
+}
 
 function hideOverlay(ev) {
   ev.preventDefault();
