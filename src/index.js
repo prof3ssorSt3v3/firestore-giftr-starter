@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, query, where, doc, getDocs, getDoc, addDoc, setDoc } from 'firebase/firestore';
+import { getFirestore, collection, query, where, doc, getDocs, getDoc, addDoc, setDoc, orderBy } from 'firebase/firestore';
 
 //TODO: replace this config object with your own
 const firebaseConfig = {
@@ -144,7 +144,8 @@ async function getIdeas(id){
   const ideaCollectionRef = collection(db, "gift-ideas"); //collection we want to query
   const docs = query(
     ideaCollectionRef,
-    where('person-id', '==', personRef)
+    where('person-id', '==', personRef),
+    orderBy('birth-month')
   );
   const querySnapshot = await getDocs(docs);
   const ideas = [];
