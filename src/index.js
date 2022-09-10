@@ -15,12 +15,16 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 // get a reference to the database
 const db = getFirestore(app);
+
 const people = [];
+const ideas = [];
 
 document.addEventListener("DOMContentLoaded", () => {
 	//set up the dom events
 
 	getPeople();
+
+	getIdeas();
 
 	document
 		.getElementById("btnCancelPerson")
@@ -48,6 +52,18 @@ async function getPeople() {
 	buildPeople(people);
 }
 
+async function getIdeas() {
+	const querySnapshot = await getDocs(collection(db, "gift-ideas"));
+	querySnapshot.forEach((doc) => {
+		//every `doc` object has a `id` property that holds the `_id` value from Firestore.
+		//every `doc` object has a doc() method that gives you a JS object with all the properties
+		const data = doc.data();
+		const id = doc.id;
+		ideas.push({ id, ...data });
+	});
+	buildIdeas(ideas);
+}
+
 function buildPeople(people) {
 	//build the HTML
 	let ul = document.querySelector("ul.person-list");
@@ -73,6 +89,21 @@ function buildPeople(people) {
 			return `<li data-id="${person.id}" class="person">
             <p class="name">${person.name}</p>
             <p class="dob">${dob}</p>
+          </li>`;
+		})
+		.join("");
+}
+
+function buildIdeas(ideas) {
+	let ul = document.querySelector("ul.idea-list");
+	ul.innerHTML = ideas
+		.map((item) => {
+			return `<li data-id="${item.id}" class="idea">
+            <label for="chk-${item.id}">
+							<input type="checkbox" id="${item.id}"/> Bought
+						</label>
+						<p class="title">${item.idea}</p>	
+						<p class="location">${item.location}</p>
           </li>`;
 		})
 		.join("");
