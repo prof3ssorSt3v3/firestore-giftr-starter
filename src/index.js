@@ -1,5 +1,12 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, doc, getDocs } from "firebase/firestore";
+import {
+	getFirestore,
+	where,
+	collection,
+	doc,
+	getDocs,
+	query,
+} from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -17,14 +24,11 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const people = [];
-const ideas = [];
 
 document.addEventListener("DOMContentLoaded", () => {
 	//set up the dom events
 
 	getPeople();
-
-	getIdeas();
 
 	document
 		.getElementById("btnCancelPerson")
@@ -52,16 +56,24 @@ async function getPeople() {
 	buildPeople(people);
 }
 
-async function getIdeas() {
-	const querySnapshot = await getDocs(collection(db, "gift-ideas"));
+async function getIdeas(id) {
+	const personRef = doc(collection(db, "people"), id);
+	//then run a query where the `person-id` property matches the reference for the person
+	const docs = query(
+		collection(db, "gift-ideas"),
+		where("person-id", "==", personRef)
+	);
+	const querySnapshot = await getDocs(docs);
+
+	console.log(querySnapshot);
+
 	querySnapshot.forEach((doc) => {
-		//every `doc` object has a `id` property that holds the `_id` value from Firestore.
-		//every `doc` object has a doc() method that gives you a JS object with all the properties
 		const data = doc.data();
 		const id = doc.id;
+		let ideas = [];
 		ideas.push({ id, ...data });
+		buildIdeas(ideas);
 	});
-	buildIdeas(ideas);
 }
 
 function buildPeople(people) {
@@ -92,26 +104,45 @@ function buildPeople(people) {
           </li>`;
 		})
 		.join("");
+
+	let selectedPerson = document.querySelector("li.person");
+	selectedPerson.classList.add("selected");
+
+	let personId = selectedPerson.getAttribute("data-id");
+	console.log(personId);
+
+	document.querySelectorAll("li.person").forEach((item) => {
+		item.addEventListener("click", setActivePerson);
+	});
+}
+
+function setActivePerson(ev) {
+	let activePerson = ev.target.closest("li");
+	document.querySelectorAll("li.person").forEach((li) => {
+		li.classList.remove("selected");
+	});
+
+	activePerson.classList.add("selected");
+	let id = activePerson.getAttribute("data-id");
+	getIdeas(id);
 }
 
 function buildIdeas(ideas) {
+	console.log(ideas);
 	let ul = document.querySelector("ul.idea-list");
-	ul.innerHTML = ideas
-		.map((item) => {
-			return `<li data-id="${item.id}" class="idea">
-            <label for="chk-${item.id}">
+	ul.innerHTML = ideas.map((item) => {
+		return `<li data-id="${item.id}" class="idea">
+	          <label for="chk-${item.id}">
 							<input type="checkbox" id="${item.id}"/> Bought
 						</label>
-						<p class="title">${item.idea}</p>	
+						<p class="title">${item.idea}</p>
 						<p class="location">${item.location}</p>
-          </li>`;
-		})
-		.join("");
+	        </li>`;
+	});
 }
 
 function hideOverlay(ev) {
 	ev.preventDefault();
-	console.log("TEST");
 	document.querySelector(".overlay").classList.remove("active");
 	document
 		.querySelectorAll(".overlay dialog")
