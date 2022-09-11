@@ -44,6 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	document.getElementById("btnAddIdea").addEventListener("click", showOverlay);
 });
 
+//Getting people list
 async function getPeople() {
 	const querySnapshot = await getDocs(collection(db, "people"));
 	querySnapshot.forEach((doc) => {
@@ -56,26 +57,7 @@ async function getPeople() {
 	buildPeople(people);
 }
 
-async function getIdeas(id) {
-	const personRef = doc(collection(db, "people"), id);
-	//then run a query where the `person-id` property matches the reference for the person
-	const docs = query(
-		collection(db, "gift-ideas"),
-		where("person-id", "==", personRef)
-	);
-	const querySnapshot = await getDocs(docs);
-
-	console.log(querySnapshot);
-
-	querySnapshot.forEach((doc) => {
-		const data = doc.data();
-		const id = doc.id;
-		let ideas = [];
-		ideas.push({ id, ...data });
-		buildIdeas(ideas);
-	});
-}
-
+//Building people
 function buildPeople(people) {
 	//build the HTML
 	let ul = document.querySelector("ul.person-list");
@@ -111,6 +93,8 @@ function buildPeople(people) {
 	let personId = selectedPerson.getAttribute("data-id");
 	console.log(personId);
 
+	getIdeas(personId);
+
 	document.querySelectorAll("li.person").forEach((item) => {
 		item.addEventListener("click", setActivePerson);
 	});
@@ -127,6 +111,28 @@ function setActivePerson(ev) {
 	getIdeas(id);
 }
 
+//Getting right ideas for people
+async function getIdeas(id) {
+	const personRef = doc(collection(db, "people"), id);
+	//then run a query where the `person-id` property matches the reference for the person
+	const docs = query(
+		collection(db, "gift-ideas"),
+		where("person-id", "==", personRef)
+	);
+	const querySnapshot = await getDocs(docs);
+
+	console.log(querySnapshot);
+
+	querySnapshot.forEach((doc) => {
+		const data = doc.data();
+		const id = doc.id;
+		let ideas = [];
+		ideas.push({ id, ...data });
+		buildIdeas(ideas);
+	});
+}
+
+//Bulding ideas list
 function buildIdeas(ideas) {
 	console.log(ideas);
 	let ul = document.querySelector("ul.idea-list");
