@@ -6,6 +6,7 @@ import {
 	doc,
 	getDocs,
 	query,
+	addDoc,
 } from "firebase/firestore";
 
 // Your web app's Firebase configuration
@@ -36,7 +37,6 @@ document.addEventListener("DOMContentLoaded", () => {
 	document
 		.getElementById("btnCancelIdea")
 		.addEventListener("click", hideOverlay);
-	document.querySelector(".overlay").addEventListener("click", hideOverlay);
 
 	document
 		.getElementById("btnAddPerson")
@@ -122,29 +122,35 @@ async function getIdeas(id) {
 	const querySnapshot = await getDocs(docs);
 
 	console.log(querySnapshot);
+	let ideas = [];
 
 	querySnapshot.forEach((doc) => {
 		const data = doc.data();
 		const id = doc.id;
-		let ideas = [];
-		ideas.push({ id, ...data });
+
+		if (!ideas.find((item) => item.id === id)) {
+			ideas.push({ id, ...data });
+		}
+		console.log(ideas);
 		buildIdeas(ideas);
 	});
 }
 
 //Bulding ideas list
 function buildIdeas(ideas) {
-	console.log(ideas);
 	let ul = document.querySelector("ul.idea-list");
-	ul.innerHTML = ideas.map((item) => {
-		return `<li data-id="${item.id}" class="idea">
+	ideas.forEach;
+	ul.innerHTML = ideas
+		.map((item) => {
+			return `<li data-id="${item.id}" class="idea">
 	          <label for="chk-${item.id}">
 							<input type="checkbox" id="${item.id}"/> Bought
 						</label>
 						<p class="title">${item.idea}</p>
 						<p class="location">${item.location}</p>
 	        </li>`;
-	});
+		})
+		.join("");
 }
 
 function hideOverlay(ev) {
