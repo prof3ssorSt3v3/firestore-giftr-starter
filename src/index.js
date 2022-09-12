@@ -28,7 +28,6 @@ const people = [];
 
 document.addEventListener("DOMContentLoaded", () => {
 	//set up the dom events
-
 	getPeople();
 
 	document
@@ -42,6 +41,10 @@ document.addEventListener("DOMContentLoaded", () => {
 		.getElementById("btnAddPerson")
 		.addEventListener("click", showOverlay);
 	document.getElementById("btnAddIdea").addEventListener("click", showOverlay);
+
+	document
+		.getElementById("btnSavePerson")
+		.addEventListener("click", savePerson);
 });
 
 //Getting people list
@@ -87,6 +90,7 @@ function buildPeople(people) {
 		})
 		.join("");
 
+	//making 1st person selected by default
 	let selectedPerson = document.querySelector("li.person");
 	selectedPerson.classList.add("selected");
 
@@ -114,47 +118,84 @@ function setActivePerson(ev) {
 //Getting right ideas for people
 async function getIdeas(id) {
 	const personRef = doc(collection(db, "people"), id);
+
 	//then run a query where the `person-id` property matches the reference for the person
 	const docs = query(
 		collection(db, "gift-ideas"),
 		where("person-id", "==", personRef)
 	);
-	const querySnapshot = await getDocs(docs);
 
-	console.log(querySnapshot);
+	const querySnapshot = await getDocs(docs);
 	let ideas = [];
 
 	querySnapshot.forEach((doc) => {
 		const data = doc.data();
 		const id = doc.id;
-
 		if (!ideas.find((item) => item.id === id)) {
 			ideas.push({ id, ...data });
 		}
-		console.log(ideas);
-		buildIdeas(ideas);
 	});
+
+	buildIdeas(ideas);
 }
 
 //Bulding ideas list
 function buildIdeas(ideas) {
 	let ul = document.querySelector("ul.idea-list");
-	ideas.forEach;
-	ul.innerHTML = ideas
-		.map((item) => {
-			return `<li data-id="${item.id}" class="idea">
-	          <label for="chk-${item.id}">
+	if (!ideas.length == 0) {
+		ul.innerHTML = ideas
+			.map((item) => {
+				return `<li data-id="${item.id}" class="idea">
+	        		<label for="chk-${item.id}">
 							<input type="checkbox" id="${item.id}"/> Bought
 						</label>
 						<p class="title">${item.idea}</p>
 						<p class="location">${item.location}</p>
 	        </li>`;
-		})
-		.join("");
+			})
+			.join("");
+	} else {
+		let ul = document.querySelector("ul.idea-list");
+		ul.innerHTML = `<li class="idea"> 
+						<p class="title" >No ideas for this person</p>
+	        </li>`;
+	}
 }
 
+async function savePerson(ev) {
+	//function called when user clicks save button from person dialog
+	let name = document.getElementById("name").value;
+	let month = document.getElementById("month").value;
+	let day = document.getElementById("day").value;
+	if (!name || !month || !day) return; //form needs more info
+	const person = {
+		name,
+		"birth-month": month,
+		"birth-day": day,
+	};
+	try {
+		const docRef = await addDoc(collection(db, "people"), person);
+		console.log("Document written with ID: ", docRef.id);
+		//1. clear the form fields
+		document.getElementById("name").value = "";
+		document.getElementById("month").value = "";
+		document.getElementById("day").value = "";
+		//2. hide the dialog and the overlay
+		hideOverlay();
+		//3. display a message to the user about success
+		// tellUser(`Person ${name} added to database`);
+		person.id = docRef.id;
+		//4. ADD the new HTML to the <ul> using the new object
+		// showPerson(person);
+	} catch (err) {
+		console.error("Error adding document: ", err);
+		//do you want to stay on the dialog?
+		//display a mesage to the user about the problem
+	}
+}
 function hideOverlay(ev) {
 	ev.preventDefault();
+	console.log("hid overlay");
 	document.querySelector(".overlay").classList.remove("active");
 	document
 		.querySelectorAll(".overlay dialog")
@@ -163,7 +204,13 @@ function hideOverlay(ev) {
 function showOverlay(ev) {
 	ev.preventDefault();
 	document.querySelector(".overlay").classList.add("active");
-	const id = ev.target.id === "btnAddPerson" ? "dlgPerson" : "dlgIdea";
+	console.log(ev.target.id);
+	if (ev.target.id === "btnAddPerson") {
+		const id = "dlgPerson";
+		document.getElementById(id).classList.add("active");
+	} else {
+		const id = "dlgIdea";
+		document.getElementById(id).classList.add("active");
+	}
 	//TODO: check that person is selected before adding an idea
-	document.getElementById(id).classList.add("active");
 }
