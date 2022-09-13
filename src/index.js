@@ -7,6 +7,7 @@ import {
 	getDocs,
 	query,
 	addDoc,
+	onSnapshot,
 } from "firebase/firestore";
 
 // Your web app's Firebase configuration
@@ -55,15 +56,28 @@ async function getPeople() {
 		//every `doc` object has a doc() method that gives you a JS object with all the properties
 		const data = doc.data();
 		const id = doc.id;
-		people.push({ id, ...data });
+
+		//Checking if the item exists in the People array
+		const isFound = people.some((item) => {
+			if (item.id === id) {
+				return true;
+			}
+		});
+
+		// If the item doesn't exist -> push into the array
+		if (!isFound) {
+			people.push({ id, ...data });
+		}
 	});
 	buildPeople(people);
 }
 
 //Building people
 function buildPeople(people) {
+	console.log(people);
 	//build the HTML
 	let ul = document.querySelector("ul.person-list");
+
 	let months = [
 		"January",
 		"February",
@@ -186,15 +200,23 @@ async function savePerson(ev) {
 		// tellUser(`Person ${name} added to database`);
 		person.id = docRef.id;
 		//4. ADD the new HTML to the <ul> using the new object
-		// showPerson(person);
+		showPerson();
 	} catch (err) {
 		console.error("Error adding document: ", err);
 		//do you want to stay on the dialog?
 		//display a mesage to the user about the problem
 	}
 }
+
+function showPerson() {
+	let ul = document.querySelector("ul.person-list");
+	ul.innerHTML = "";
+	getPeople();
+}
 function hideOverlay(ev) {
-	ev.preventDefault();
+	if (ev) {
+		ev.preventDefault();
+	}
 	console.log("hid overlay");
 	document.querySelector(".overlay").classList.remove("active");
 	document
