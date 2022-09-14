@@ -80,7 +80,7 @@ ul {
 	cursor: pointer;
 }
 .person-list li.selected {
-	background-color: var(--light-orange);
+	background-color: var(--very-light-orange);
 }
 .person-list p.name {
 	font-size: 1.2rem;
@@ -94,14 +94,26 @@ ul {
 	color: #777;
 }
 
+.person-top {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.person-button {
+	border: none;
+	background-color: rgba(255, 255, 255, 0);
+	cursor: pointer;
+	padding: 0.1rem;
+}
 .idea-list li.idea {
 	border: 1px solid #222;
 	border-radius: var(--radii);
 	margin: 1rem 0;
-	display: grid;
+	display: flex;
 	/*usenamedgridareas*/
-	grid-template-areas: "tab top" "tab bottom";
-	grid-template-columns: 1fr 4fr;
+	flex-direction: row;
 	background-color: var(--very-light-orange);
 	-webkit-border-radius: var(--radii);
 	-moz-border-radius: var(--radii);
@@ -126,7 +138,7 @@ ul {
 .idea-list p.title {
 	font-size: 1.2rem;
 	line-height: 2rem;
-	padding: 0.5rem;
+	padding-bottom: 0.5rem;
 	color: #222;
 	background-color: #fff;
 	border-top-right-radius: 0.3rem;
@@ -135,12 +147,51 @@ ul {
 .idea-list p.location {
 	font-size: 1rem;
 	line-height: 1rem;
-	padding: 0.5rem;
 	font-weight: 100;
 	color: #555;
 	background-color: #fff;
 	border-bottom-right-radius: 0.3rem;
 	grid-area: bottom;
+}
+
+.idea-actions {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.idea-checkbox {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	min-width: 5rem;
+}
+
+.idea-info {
+	display: flex;
+	flex-direction: row;
+	width: 100%;
+	background-color: white;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0.75rem;
+}
+
+.idea-button {
+	padding: 0.25rem 0.5rem 0.25rem 0.5rem;
+	background-color: white;
+	border: 0.05rem solid rgba(0, 0, 0, 0.5);
+	border-radius: 0.33rem;
+	font-size: 0.9rem;
+	color: rgba(0, 0, 0, 0.5);
+	min-width: 5rem;
+	cursor: pointer;
+}
+
+.idea-button.delete {
+	background-color: rgba(255, 0, 0, 0.1);
+	border: 0.05rem solid red;
+	color: red;
 }
 
 section.overlay {
