@@ -27,6 +27,29 @@ const db = getFirestore(app);
 
 const people = [];
 
+function peopleChange() {
+	const q = query(collection(db, "collection-name"));
+	const unsubscribe = onSnapshot(
+		q,
+		(snapshot) => {
+			snapshot.docChanges().forEach((change) => {
+				if (change.type === "added") {
+					console.log("New data: ", change.doc.data());
+				}
+				if (change.type === "modified") {
+					console.log("Modified data: ", change.doc.data());
+				}
+				if (change.type === "removed") {
+					console.log("Removed data: ", change.doc.data());
+				}
+			});
+		},
+		(err) => {
+			//error handler
+		}
+	);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
 	//set up the dom events
 	getPeople();
@@ -46,6 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	document
 		.getElementById("btnSavePerson")
 		.addEventListener("click", savePerson);
+	document.getElementById("btnSaveIdea").addEventListener("click", saveIdea);
 });
 
 //Getting people list
@@ -131,6 +155,7 @@ function setActivePerson(ev) {
 
 //Getting right ideas for people
 async function getIdeas(id) {
+	console.log("Got to getIdeas");
 	const personRef = doc(collection(db, "people"), id);
 
 	//then run a query where the `person-id` property matches the reference for the person
@@ -149,6 +174,7 @@ async function getIdeas(id) {
 			ideas.push({ id, ...data });
 		}
 	});
+	console.log(ideas);
 
 	buildIdeas(ideas);
 }
@@ -197,10 +223,10 @@ async function savePerson(ev) {
 		//2. hide the dialog and the overlay
 		hideOverlay();
 		//3. display a message to the user about success
-		// tellUser(`Person ${name} added to database`);
+		alert(`${name} added`);
 		person.id = docRef.id;
 		//4. ADD the new HTML to the <ul> using the new object
-		showPerson();
+		getPeople();
 	} catch (err) {
 		console.error("Error adding document: ", err);
 		//do you want to stay on the dialog?
@@ -208,11 +234,41 @@ async function savePerson(ev) {
 	}
 }
 
-function showPerson() {
-	let ul = document.querySelector("ul.person-list");
-	ul.innerHTML = "";
-	getPeople();
+async function saveIdea() {
+	let idea = document.getElementById("title").value;
+	let location = document.getElementById("location").value;
+	let selectedPerson = document.querySelector("li.person.selected");
+	let personId = selectedPerson.getAttribute("data-id");
+
+	const personRef = doc(collection(db, "people"), personId);
+	console.log(personRef);
+	if (!idea || !location) return;
+
+	const giftIdea = {
+		idea,
+		location,
+		"person-id": personRef,
+	};
+	try {
+		const docRef = await addDoc(collection(db, "gift-ideas"), giftIdea);
+		console.log("Document written with ID: ", docRef.id);
+		//1. clear the form fields
+		document.getElementById("title").value = "";
+		document.getElementById("location").value = "";
+		//2. hide the dialog and the overlay
+		hideOverlay();
+		//3. display a message to the user about success
+		alert(`${idea} added`);
+		giftIdea.id = docRef.id;
+		//4. ADD the new HTML to the <ul> using the new object
+		getIdeas(personId);
+	} catch (err) {
+		console.error("Error adding document: ", err);
+		//do you want to stay on the dialog?
+		//display a mesage to the user about the problem
+	}
 }
+
 function hideOverlay(ev) {
 	if (ev) {
 		ev.preventDefault();
