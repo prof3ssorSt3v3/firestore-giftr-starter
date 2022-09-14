@@ -1,48 +1,47 @@
-import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, doc } from 'firebase/firestore';
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, doc } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyA11AtBsjU2Kr_TCGdySvB0IDt2XyfbB7E',
-  authDomain: 'stupid-first-project.firebaseapp.com',
-  projectId: 'stupid-first-project',
-  storageBucket: 'stupid-first-project.appspot.com',
-  messagingSenderId: '876050898658',
-  appId: '1:876050898658:web:d4d7add948d9a578b948bb',
+  apiKey: "AIzaSyDkx8fhcF6ONfR0JfeWpsxG1dY4SlnYeVg",
+  authDomain: "fire-giftr-19c36.firebaseapp.com",
+  projectId: "fire-giftr-19c36",
+  storageBucket: "fire-giftr-19c36.appspot.com",
+  messagingSenderId: "870978806402",
+  appId: "1:870978806402:web:ce52531d695aa103710a9b",
 };
-//TODO: replace this config object with your own
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 // get a reference to the database
 const db = getFirestore(app);
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   //set up the dom events
   document
-    .getElementById('btnCancelPerson')
-    .addEventListener('click', hideOverlay);
+    .getElementById("btnCancelPerson")
+    .addEventListener("click", hideOverlay);
   document
-    .getElementById('btnCancelIdea')
-    .addEventListener('click', hideOverlay);
-  document.querySelector('.overlay').addEventListener('click', hideOverlay);
+    .getElementById("btnCancelIdea")
+    .addEventListener("click", hideOverlay);
+  document.querySelector(".overlay").addEventListener("click", hideOverlay);
 
   document
-    .getElementById('btnAddPerson')
-    .addEventListener('click', showOverlay);
-  document.getElementById('btnAddIdea').addEventListener('click', showOverlay);
+    .getElementById("btnAddPerson")
+    .addEventListener("click", showOverlay);
+  document.getElementById("btnAddIdea").addEventListener("click", showOverlay);
 });
 
 function hideOverlay(ev) {
   ev.preventDefault();
-  document.querySelector('.overlay').classList.remove('active');
+  document.querySelector(".overlay").classList.remove("active");
   document
-    .querySelectorAll('.overlay dialog')
-    .forEach((dialog) => dialog.classList.remove('active'));
+    .querySelectorAll(".overlay dialog")
+    .forEach((dialog) => dialog.classList.remove("active"));
 }
 function showOverlay(ev) {
   ev.preventDefault();
-  document.querySelector('.overlay').classList.add('active');
-  const id = ev.target.id === 'btnAddPerson' ? 'dlgPerson' : 'dlgIdea';
+  document.querySelector(".overlay").classList.add("active");
+  const id = ev.target.id === "btnAddPerson" ? "dlgPerson" : "dlgIdea";
   //TODO: check that person is selected before adding an idea
-  document.getElementById(id).classList.add('active');
+  document.getElementById(id).classList.add("active");
 }
