@@ -27,7 +27,12 @@ const app = initializeApp(firebaseConfig);
 // get a reference to the database
 const db = getFirestore(app);
 
+let selectedPersonId = null;
+
 let people = [];
+
+let ideas = [];
+
 const pQuery = query(collection(db, "people"));
 
 const peopleChange = onSnapshot(
@@ -38,8 +43,8 @@ const peopleChange = onSnapshot(
 			const data = doc.data();
 			const id = doc.id;
 			people.push({ id, ...data });
-			buildPeople(people);
 		});
+		buildPeople(people);
 	},
 	(err) => {
 		//error handler
@@ -48,7 +53,7 @@ const peopleChange = onSnapshot(
 
 document.addEventListener("DOMContentLoaded", () => {
 	//set up the dom events
-	// getPeople();
+	buildIdeas(ideas);
 
 	document
 		.getElementById("btnCancelPerson")
@@ -67,30 +72,6 @@ document.addEventListener("DOMContentLoaded", () => {
 		.addEventListener("click", savePerson);
 	document.getElementById("btnSaveIdea").addEventListener("click", saveIdea);
 });
-
-//Getting people list
-async function getPeople() {
-	const querySnapshot = await getDocs(collection(db, "people"));
-	querySnapshot.forEach((doc) => {
-		//every `doc` object has a `id` property that holds the `_id` value from Firestore.
-		//every `doc` object has a doc() method that gives you a JS object with all the properties
-		const data = doc.data();
-		const id = doc.id;
-
-		//Checking if the item exists in the People array
-		const isFound = people.some((item) => {
-			if (item.id === id) {
-				return true;
-			}
-		});
-
-		// If the item doesn't exist -> push into the array
-		if (!isFound) {
-			people.push({ id, ...data });
-		}
-	});
-	// buildPeople(people);
-}
 
 //Building people
 function buildPeople(people) {
@@ -152,9 +133,7 @@ function buildPeople(people) {
 	let selectedPerson = document.querySelector("li.person");
 	selectedPerson.classList.add("selected");
 
-	let personId = selectedPerson.getAttribute("data-id");
-
-	getIdeas(personId);
+	selectedPersonId = selectedPerson.getAttribute("data-id");
 
 	document.querySelectorAll(".person-info").forEach((item) => {
 		item.addEventListener("click", setActivePerson);
@@ -168,36 +147,43 @@ function setActivePerson(ev) {
 	});
 
 	activePerson.classList.add("selected");
-	let id = activePerson.getAttribute("data-id");
-	getIdeas(id);
+	selectedPersonId = activePerson.getAttribute("data-id");
+	console.log(selectedPersonId);
+	giftListener();
 }
 
-//Getting right ideas for people
-async function getIdeas(id) {
-	const personRef = doc(collection(db, "people"), id);
+function giftListener() {
+	const personRef = doc(collection(db, "people"), selectedPersonId);
 
-	//then run a query where the `person-id` property matches the reference for the person
-	const docs = query(
+	const gQuery = query(
 		collection(db, "gift-ideas"),
 		where("person-id", "==", personRef)
 	);
 
-	const querySnapshot = await getDocs(docs);
-	let ideas = [];
-
-	querySnapshot.forEach((doc) => {
-		const data = doc.data();
-		const id = doc.id;
-		if (!ideas.find((item) => item.id === id)) {
-			ideas.push({ id, ...data });
-		}
+	onSnapshot(gQuery, (querySnapshot) => {
+		ideas = [];
+		querySnapshot.forEach(
+			(doc) => {
+				const data = doc.data();
+				const id = doc.id;
+				ideas.push({ id, ...data });
+				console.log(ideas);
+				// if (!ideas.find((item) => item.id === id)) {
+				// 	ideas.push({ id, ...data });
+				// }
+			},
+			(err) => {}
+		);
+		buildIdeas(ideas);
 	});
-
-	buildIdeas(ideas);
 }
+
+//Getting right ideas for people
+async function getIdeas() {}
 
 //Bulding ideas list
 function buildIdeas(ideas) {
+	console.log(ideas);
 	let ul = document.querySelector("ul.idea-list");
 	if (!ideas.length == 0) {
 		ul.innerHTML = ideas
@@ -282,10 +268,8 @@ async function savePerson(ev) {
 async function saveIdea() {
 	let idea = document.getElementById("title").value;
 	let location = document.getElementById("location").value;
-	let selectedPerson = document.querySelector("li.person.selected");
-	let personId = selectedPerson.getAttribute("data-id");
 
-	const personRef = doc(collection(db, "people"), personId);
+	const personRef = doc(collection(db, "people"), selectedPersonId);
 	if (!idea || !location) return;
 
 	const giftIdea = {
@@ -305,7 +289,6 @@ async function saveIdea() {
 		alert(`${idea} added`);
 		giftIdea.id = docRef.id;
 		//4. ADD the new HTML to the <ul> using the new object
-		getIdeas(personId);
 	} catch (err) {
 		console.error("Error adding document: ", err);
 		//do you want to stay on the dialog?
@@ -314,15 +297,14 @@ async function saveIdea() {
 }
 
 function showDeleteConfirm(ev) {
-	let personId = ev.target.closest("li").getAttribute("data-id");
 	let personName = ev.target.closest("li").getAttribute("data-name");
 	confirm(`Are you sure you want to delete ${personName}?`);
-	deletePerson(personId);
-	console.log(`Person deleted with id: ${personId}`);
+	deletePerson();
+	console.log(`Person deleted with id: ${selectedPersonId}`);
 }
 
-async function deletePerson(id) {
-	await deleteDoc(doc(db, "people", id));
+async function deletePerson() {
+	await deleteDoc(doc(db, "people", selectedPersonId));
 }
 
 function hideOverlay(ev) {
@@ -360,12 +342,14 @@ function showOverlay(ev) {
 		let personName = li.getAttribute("data-name");
 		let personDay = li.getAttribute("data-day");
 		let personMonth = li.getAttribute("data-month");
-		let personId = li.getAttribute("data-id");
+
 		document.getElementById("name").value = personName;
 		document.getElementById("day").value = personDay;
 		document.getElementById("month").value = personMonth;
 
-		document.getElementById("btnSavePerson").setAttribute("data-id", personId);
+		document
+			.getElementById("btnSavePerson")
+			.setAttribute("data-id", selectedPersonId);
 	}
 
 	//TODO: check that person is selected before adding an ide
