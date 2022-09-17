@@ -9,6 +9,7 @@ import {
 	addDoc,
 	onSnapshot,
 	setDoc,
+	deleteDoc,
 } from "firebase/firestore";
 
 // Your web app's Firebase configuration
@@ -93,7 +94,6 @@ async function getPeople() {
 
 //Building people
 function buildPeople(people) {
-	console.log(people);
 	//build the HTML
 	let ul = document.querySelector("ul.person-list");
 
@@ -145,7 +145,7 @@ function buildPeople(people) {
 	});
 
 	document.querySelectorAll(".person-button.edit").forEach((button) => {
-		button.addEventListener("click", showEditDialog);
+		button.addEventListener("click", showOverlay);
 	});
 
 	//making 1st person selected by default
@@ -174,7 +174,6 @@ function setActivePerson(ev) {
 
 //Getting right ideas for people
 async function getIdeas(id) {
-	console.log("Got to getIdeas");
 	const personRef = doc(collection(db, "people"), id);
 
 	//then run a query where the `person-id` property matches the reference for the person
@@ -252,7 +251,6 @@ async function savePerson(ev) {
 	};
 
 	let id = document.getElementById("btnSavePerson").getAttribute("data-id");
-	console.log(id);
 
 	if (!id) {
 		try {
@@ -275,7 +273,6 @@ async function savePerson(ev) {
 			//display a mesage to the user about the problem
 		}
 	} else {
-		console.log("Person exists");
 		const docRef = await setDoc(doc(db, "people", id), person);
 		hideOverlay();
 	}
@@ -317,21 +314,23 @@ async function saveIdea() {
 }
 
 function showDeleteConfirm(ev) {
-	confirm("Are you sure?");
 	let personId = ev.target.closest("li").getAttribute("data-id");
+	let personName = ev.target.closest("li").getAttribute("data-name");
+	confirm(`Are you sure you want to delete ${personName}?`);
 	deletePerson(personId);
 	console.log(`Person deleted with id: ${personId}`);
 }
 
-function showEditDialog(ev) {
-	showOverlay(ev);
+async function deletePerson(id) {
+	await deleteDoc(doc(db, "people", id));
 }
+
 function hideOverlay(ev) {
 	if (ev) {
 		ev.preventDefault();
 	}
 	document.getElementById("btnSavePerson").removeAttribute("data-id");
-	console.log("hid overlay");
+
 	document.querySelector(".overlay").classList.remove("active");
 	document
 		.querySelectorAll(".overlay dialog")
