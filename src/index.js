@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs, addDoc} from 'firebase/firestore';
+import { getFirestore, collection, query, where, doc, getDocs, getDoc, addDoc, setDoc, orderBy } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCtjyPJ7LqQUQZgiy1uxYcTPAj_p6zE4WM",
@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document
     .getElementById('btnSavePerson')
     .addEventListener('click', savePerson);
+  document.getElementById('btnSaveIdea').addEventListener('click', saveIdea);
 
   document.querySelector('.person-list').addEventListener('click', handleSelectPerson);
 
@@ -156,6 +157,94 @@ function handleSelectPerson(ev){
     //Show the dialog form to ADD the doc (same form as EDIT)
     //showOverlay function can be called from here or with the click listener in DOMContentLoaded, not both
   }
+}
+
+async function getIdeas(id){
+  //the person-id property in gift-ideas will be like `/people/lasdjkflaskdfjsdlfk`
+  //and it is a REFERENCE not a string. So, we use a reference to the person object
+  const personRef = doc(collection(db, 'people'), id);
+  const ideaCollectionRef = collection(db, "gift-ideas"); //collection we want to query
+  const docs = query(
+    ideaCollectionRef,
+    where('person-id', '==', personRef),
+    orderBy('birth-month')
+  );
+  const querySnapshot = await getDocs(docs);
+  const ideas = [];
+  querySnapshot.forEach((doc) => {
+    //every `doc` object has a `id` property that holds the `_id` value from Firestore.
+    //every `doc` object has a doc() method that gives you a JS object with all the properties
+    const data = doc.data();
+    const id = doc.id;
+    //person_id is a reference type
+    //we want the actual id string in our object use id to get the _id
+    // console.log(data['person-id']);
+    ideas.push({id, 
+      title: data.title,
+      location: data.location,
+      bought: data.bought,
+      person_id: data['person-id'].id,
+      person_ref: data['person-id'],
+    });
+
+  });
+  //now build the HTML from the ideas array
+  buildIdeas(ideas);
+}
+
+function buildIdeas(ideas){
+  const ul = document.querySelector('.idea-list');
+  if(ideas.length){
+    ul.innerHTML = ideas.map(idea=>{
+      // console.log(`show ${idea.id}`);
+      return `<li class="idea" data-id="${idea.id}">
+                <label for="chk-${idea.id}"
+                  ><input type="checkbox" id="chk-${idea.id}" /> Bought</label
+                >
+                <p class="title">${idea.title}</p>
+                <p class="location">${idea.location}</p>
+              </li>`;
+    }).join('');
+  }else{
+    ul.innerHTML = '<li class="idea"><p></p><p>No Gift Ideas for selected person.</p></li>'; //clear in case there are no records to shows
+  }
+  //add listener for 'change' or 'input' event on EVERY checkbox '.idea [type="checkbox"]'
+  // which will call a function to update the `bought` value for the document
+}
+
+async function saveIdea() {
+  //take the information from the dialog, save as an object, push to firestore
+  let title = document.getElementById('title').value;
+  let location = document.getElementById('location').value;
+  if(!title || !location ) return; //form needs more info 
+  //a new idea needs a reference to the person
+  const personRef = doc(db, `/people/${selectedPersonId}`);
+  const idea = {
+    title,
+    location,
+    'person-id': personRef
+  };
+
+  try {
+    const docRef = await addDoc(collection(db, 'gift-ideas'), idea );
+    console.log('Document written with ID: ', docRef.id);
+    idea.id = docRef.id;
+    //1. clear the form fields 
+    document.getElementById('title').value = '';
+    document.getElementById('location').value = '';
+    //2. hide the dialog and the overlay by clicking on overlay
+    document.querySelector('.overlay').click();
+    //3. TODO: display a message to the user about success 
+    
+    //4. ADD the new HTML to the <ul> using the new object
+    //just recall the method to show all ideas for the selected person
+    getIdeas(selectedPersonId);
+  } catch (err) {
+    console.error('Error adding document: ', err);
+    //do you want to stay on the dialog?
+    //display a mesage to the user about the problem
+  }
+  //TODO: update this function to work as an UPDATE method too
 }
 
 function hideOverlay(ev) {
