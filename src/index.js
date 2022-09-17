@@ -26,31 +26,20 @@ const app = initializeApp(firebaseConfig);
 // get a reference to the database
 const db = getFirestore(app);
 
-const people = [];
+let people = [];
 const pQuery = query(collection(db, "people"));
 
 const peopleChange = onSnapshot(
 	pQuery,
 	(querySnapshot) => {
+		people = [];
 		querySnapshot.forEach((doc) => {
 			const data = doc.data();
 			const id = doc.id;
-
-			//Checking if the item exists in the People array
-			const isFound = people.some((item) => {
-				if (item.id === id) {
-					return true;
-				}
-			});
-
-			// If the item doesn't exist -> push into the array
-			if (!isFound) {
-				people.push({ id, ...data });
-			}
+			people.push({ id, ...data });
 			buildPeople(people);
 		});
 	},
-
 	(err) => {
 		//error handler
 	}
@@ -164,7 +153,6 @@ function buildPeople(people) {
 	selectedPerson.classList.add("selected");
 
 	let personId = selectedPerson.getAttribute("data-id");
-	console.log(personId);
 
 	getIdeas(personId);
 
@@ -205,7 +193,6 @@ async function getIdeas(id) {
 			ideas.push({ id, ...data });
 		}
 	});
-	console.log(ideas);
 
 	buildIdeas(ideas);
 }
@@ -302,7 +289,6 @@ async function saveIdea() {
 	let personId = selectedPerson.getAttribute("data-id");
 
 	const personRef = doc(collection(db, "people"), personId);
-	console.log(personRef);
 	if (!idea || !location) return;
 
 	const giftIdea = {
@@ -333,11 +319,11 @@ async function saveIdea() {
 function showDeleteConfirm(ev) {
 	confirm("Are you sure?");
 	let personId = ev.target.closest("li").getAttribute("data-id");
+	deletePerson(personId);
 	console.log(`Person deleted with id: ${personId}`);
 }
 
 function showEditDialog(ev) {
-	console.log("clicked edit");
 	showOverlay(ev);
 }
 function hideOverlay(ev) {
@@ -352,6 +338,9 @@ function hideOverlay(ev) {
 		.forEach((dialog) => dialog.classList.remove("active"));
 }
 function showOverlay(ev) {
+	document.getElementById("name").value = "";
+	document.getElementById("day").value = "1";
+	document.getElementById("month").value = "1";
 	ev.preventDefault();
 	if (ev.target.id === "btnAddPerson" || ev.target.id === "btnAddIdea") {
 		document.querySelector(".overlay").classList.add("active");
@@ -373,10 +362,10 @@ function showOverlay(ev) {
 		let personDay = li.getAttribute("data-day");
 		let personMonth = li.getAttribute("data-month");
 		let personId = li.getAttribute("data-id");
-
 		document.getElementById("name").value = personName;
 		document.getElementById("day").value = personDay;
 		document.getElementById("month").value = personMonth;
+
 		document.getElementById("btnSavePerson").setAttribute("data-id", personId);
 	}
 
