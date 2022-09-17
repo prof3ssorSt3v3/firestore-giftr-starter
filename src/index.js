@@ -188,7 +188,7 @@ function buildIdeas(ideas) {
 	if (!ideas.length == 0) {
 		ul.innerHTML = ideas
 			.map((item) => {
-				return `<li data-id="${item.id}" class="idea">
+				return `<li data-id="${item.id}" data-idea="${item.idea}" data-location="${item.location}" class="idea">
 								<div class="idea-checkbox">
 								<label for="chk-${item.id}">
 									<input type="checkbox" id="${item.id}"/> Bought
@@ -196,8 +196,8 @@ function buildIdeas(ideas) {
 								</div>
 								<div class="idea-info">
 									<div>
-									<p class="title">${item.idea}</p>
-									<p class="location">${item.location}</p>
+									<p class="title" >${item.idea}</p>
+									<p class="location" >${item.location}</p>
 									</div>
 							
 									<div class="idea-actions">
@@ -206,7 +206,7 @@ function buildIdeas(ideas) {
 									<path d="M12.6667 7.33333V13.6C12.6667 13.7061 12.6245 13.8078 12.5495 13.8828C12.4745 13.9579 12.3728 14 12.2667 14H3.73333C3.62725 14 3.52551 13.9579 3.45049 13.8828C3.37548 13.8078 3.33333 13.7061 3.33333 13.6V7.33333M6.66667 11.3333V7.33333M9.33333 11.3333V7.33333M14 4.66667H10.6667M2 4.66667H5.33333M5.33333 4.66667V2.4C5.33333 2.29391 5.37548 2.19217 5.45049 2.11716C5.5255 2.04214 5.62725 2 5.73333 2H10.2667C10.3728 2 10.4745 2.04214 10.5495 2.11716C10.6245 2.19217 10.6667 2.29391 10.6667 2.4V4.66667M5.33333 4.66667H10.6667" stroke="#ff0000" stroke-linecap="round" stroke-linejoin="round"/>
 									</svg>
 									Delete</button>
-									<button data-id="btnEditIdea" class="idea-button">
+									<button data-id="btnEditIdea" class="idea-button edit">
 									<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 									<path d="M8.68002 3.88533L10.5667 2L13.866 5.3L11.98 7.18533M8.68002 3.88533L2.27602 10.29C2.15099 10.415 2.08073 10.5845 2.08069 10.7613V13.7853H5.10469C5.28148 13.7853 5.45103 13.715 5.57602 13.59L11.98 7.18533M8.68002 3.88533L11.98 7.18533" stroke="#00000080" stroke-linecap="round" stroke-linejoin="round"/>
 									</svg>
@@ -216,6 +216,13 @@ function buildIdeas(ideas) {
 	        </li>`;
 			})
 			.join("");
+		document.querySelectorAll(".idea-button.delete").forEach((button) => {
+			button.addEventListener("click", showDeleteConfirm);
+		});
+
+		document.querySelectorAll(".idea-button.edit").forEach((button) => {
+			button.addEventListener("click", showOverlay);
+		});
 	} else {
 		let ul = document.querySelector("ul.idea-list");
 		ul.innerHTML = `<li class="idea"> 
@@ -277,22 +284,30 @@ async function saveIdea() {
 		location,
 		"person-id": personRef,
 	};
-	try {
-		const docRef = await addDoc(collection(db, "gift-ideas"), giftIdea);
-		console.log("Document written with ID: ", docRef.id);
-		//1. clear the form fields
-		document.getElementById("title").value = "";
-		document.getElementById("location").value = "";
-		//2. hide the dialog and the overlay
+
+	let id = document.getElementById("btnSaveIdea").getAttribute("data-id");
+
+	if (!id) {
+		try {
+			const docRef = await addDoc(collection(db, "gift-ideas"), giftIdea);
+			console.log("Document written with ID: ", docRef.id);
+			//1. clear the form fields
+			document.getElementById("title").value = "";
+			document.getElementById("location").value = "";
+			//2. hide the dialog and the overlay
+			hideOverlay();
+			//3. display a message to the user about success
+			alert(`${idea} added`);
+			giftIdea.id = docRef.id;
+			//4. ADD the new HTML to the <ul> using the new object
+		} catch (err) {
+			console.error("Error adding document: ", err);
+			//do you want to stay on the dialog?
+			//display a mesage to the user about the problem
+		}
+	} else {
+		const docRef = await setDoc(doc(db, "gift-ideas", id), giftIdea);
 		hideOverlay();
-		//3. display a message to the user about success
-		alert(`${idea} added`);
-		giftIdea.id = docRef.id;
-		//4. ADD the new HTML to the <ul> using the new object
-	} catch (err) {
-		console.error("Error adding document: ", err);
-		//do you want to stay on the dialog?
-		//display a mesage to the user about the problem
 	}
 }
 
@@ -312,19 +327,26 @@ function hideOverlay(ev) {
 		ev.preventDefault();
 	}
 	document.getElementById("btnSavePerson").removeAttribute("data-id");
+	document.getElementById("btnSaveIdea").removeAttribute("data-id");
 
 	document.querySelector(".overlay").classList.remove("active");
 	document
 		.querySelectorAll(".overlay dialog")
 		.forEach((dialog) => dialog.classList.remove("active"));
 }
+
 function showOverlay(ev) {
+	ev.preventDefault();
+
 	document.getElementById("name").value = "";
 	document.getElementById("day").value = "1";
 	document.getElementById("month").value = "1";
-	ev.preventDefault();
+
+	document.getElementById("title").value = "";
+	document.getElementById("location").value = "";
+
+	document.querySelector(".overlay").classList.add("active");
 	if (ev.target.id === "btnAddPerson" || ev.target.id === "btnAddIdea") {
-		document.querySelector(".overlay").classList.add("active");
 		console.log(ev.target.id);
 		if (ev.target.id === "btnAddPerson") {
 			const id = "dlgPerson";
@@ -334,22 +356,37 @@ function showOverlay(ev) {
 			document.getElementById(id).classList.add("active");
 		}
 	} else {
-		document.querySelector(".overlay").classList.add("active");
-		const id = "dlgPerson";
-		document.getElementById(id).classList.add("active");
+		if (ev.target.getAttribute("data-id") === "btnEditIdea") {
+			const id = "dlgIdea";
+			document.getElementById(id).classList.add("active");
+			let li = ev.target.closest("li");
+			console.log(li);
 
-		let li = ev.target.closest("li");
-		let personName = li.getAttribute("data-name");
-		let personDay = li.getAttribute("data-day");
-		let personMonth = li.getAttribute("data-month");
+			let ideaId = li.getAttribute("data-id");
+			let idea = li.getAttribute("data-idea");
+			let location = li.getAttribute("data-location");
 
-		document.getElementById("name").value = personName;
-		document.getElementById("day").value = personDay;
-		document.getElementById("month").value = personMonth;
+			document.getElementById("title").value = idea;
+			document.getElementById("location").value = location;
 
-		document
-			.getElementById("btnSavePerson")
-			.setAttribute("data-id", selectedPersonId);
+			document.getElementById("btnSaveIdea").setAttribute("data-id", ideaId);
+		} else {
+			const id = "dlgPerson";
+			document.getElementById(id).classList.add("active");
+
+			let li = ev.target.closest("li");
+			let personName = li.getAttribute("data-name");
+			let personDay = li.getAttribute("data-day");
+			let personMonth = li.getAttribute("data-month");
+
+			document.getElementById("name").value = personName;
+			document.getElementById("day").value = personDay;
+			document.getElementById("month").value = personMonth;
+
+			document
+				.getElementById("btnSavePerson")
+				.setAttribute("data-id", selectedPersonId);
+		}
 	}
 
 	//TODO: check that person is selected before adding an ide
