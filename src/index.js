@@ -380,5 +380,5 @@ function showOverlay(ev) {
 		document.getElementById("btnSavePerson").setAttribute("data-id", personId);
 	}
 
-	//TODO: check that person is selected before adding an idea
+	//TODO: check that person is selected before adding an ide
 }
