@@ -19,9 +19,8 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-// get a reference to the database
 const db = getFirestore(app);
-const people = []; //to hold all the people from the collection
+const people = [];
 let selectedPersonId = null;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -108,7 +107,6 @@ function buildPeople(people) {
 
 function handleSelectPerson(ev) {
   const li = ev.target.closest(".person");
-  console.log(`${li.getAttribute("data-id")} was clicked`);
   const id = li ? li.getAttribute("data-id") : null;
   if (id) {
     selectedPersonId = id;
@@ -122,12 +120,55 @@ function handleSelectPerson(ev) {
     } else {
       document.querySelector("li.selected")?.classList.remove("selected");
       li.classList.add("selected");
-      //and load all the gift idea documents for that person
-      // getIdeas(id);
+      getIdeas(id);
     }
   } else {
     //clicked a button not inside <li class="person">
     //Show the dialog form to ADD the doc (same form as EDIT)
     //showOverlay function can be called from here or with the click listener in DOMContentLoaded, not both
+  }
+}
+
+async function getIdeas(id) {
+  const personRef = doc(collection(db, "people"), id);
+  const docs = query(
+    collection(db, "gift-ideas"),
+    where("person-id", "==", personRef)
+  );
+  const querySnapshot = await getDocs(docs);
+  const ideas = [];
+  querySnapshot.forEach((doc) => {
+    //work with the resulting docs
+    const data = doc.data();
+    const id = doc.id;
+    ideas.push({
+      id,
+      title: data.title,
+      location: data.location,
+      bought: data.bought,
+      person_id: data["person-id"].id,
+      person_ref: data["person-id"],
+    });
+  });
+  buildIdeas(ideas);
+}
+
+function buildIdeas(ideas) {
+  const ul = document.querySelector(".idea-list");
+  if (ideas.length) {
+    ul.innerHTML = ideas
+      .map((idea) => {
+        return `<li class="idea" data-id="${idea.id}">
+                <label for="chk-${idea.id}"
+                  ><input type="checkbox" id="chk-${idea.id}" /> Bought</label
+                >
+                <p class="title">${idea.title}</p>
+                <p class="location">${idea.location}</p>
+              </li>`;
+      })
+      .join("");
+  } else {
+    ul.innerHTML =
+      '<li class="idea"><p></p><p>No Gift Ideas for selected person.</p></li>'; //clear in case there are no records to shows
   }
 }
