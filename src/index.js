@@ -72,9 +72,15 @@ function hideOverlay(ev) {
     .forEach((dialog) => dialog.classList.remove("active"));
 }
 function showOverlay(ev) {
-  ev.preventDefault();
+  let id;
+  if (ev) {
+    ev.preventDefault();
+    id = ev.target.id === "btnAddPerson" ? "dlgPerson" : "dlgIdea";
+  } else {
+    id = "tellUser";
+  }
   document.querySelector(".overlay").classList.add("active");
-  const id = ev.target.id === "btnAddPerson" ? "dlgPerson" : "dlgIdea";
+  //const id = ev.target.id === "btnAddPerson" ? "dlgPerson" : "dlgIdea";
   //TODO: check that person is selected before adding an idea
   document.getElementById(id).classList.add("active");
 }
@@ -200,6 +206,7 @@ async function savePerson(ev) {
     hideOverlay();
     //3. display a message to the user about success
     // tellUser(`Person ${name} added to database`);
+    tellUser(name);
     person.id = docRef.id;
     //4. ADD the new HTML to the <ul> using the new object
     showPerson(person);
@@ -228,4 +235,13 @@ function showPerson(person) {
           </li>`;
     document.querySelector("ul.person-list").innerHTML += li;
   }
+}
+
+function tellUser(person) {
+  const dlg = document.getElementById("tellUser");
+  dlg.innerHTML = `<h2>Successful!</h2>
+        <p> <span style="color:#ffcb2a">${person}</span> &nbsp; added to database</p>
+        <button id="btnOk">Ok</button>`;
+  showOverlay();
+  document.getElementById("btnOk").addEventListener("click", hideOverlay);
 }

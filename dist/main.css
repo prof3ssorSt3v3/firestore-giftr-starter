@@ -169,6 +169,10 @@ dialog.active {
   width: 80vw;
   height: 60vh;
 }
+dialog.active#tellUser{
+  width: max-content;
+height: auto;
+}
 dialog.active h2 {
   background-color: var(--dark-orange);
   color: #fff;
@@ -203,4 +207,10 @@ dialog button {
 }
 :is(dialog, h2) button:active {
   background-color: var(--light-orange);
+}
+
+#btnOk{
+  margin: 0 auto;
+  display: block;
+  margin-bottom: 1rem;
 }
