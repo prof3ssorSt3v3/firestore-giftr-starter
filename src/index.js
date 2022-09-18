@@ -6,6 +6,7 @@ import {
   getDocs,
   query,
   where,
+  addDoc,
 } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -21,6 +22,20 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const people = [];
+let months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 let selectedPersonId = null;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -30,12 +45,17 @@ document.addEventListener("DOMContentLoaded", () => {
   document
     .getElementById("btnCancelIdea")
     .addEventListener("click", hideOverlay);
-  document.querySelector(".overlay").addEventListener("click", hideOverlay);
+  // document.querySelector(".overlay").addEventListener("click", hideOverlay);
 
   document
     .getElementById("btnAddPerson")
     .addEventListener("click", showOverlay);
-  document.getElementById("btnAddIdea").addEventListener("click", showOverlay);
+  document.getElementById("btnSaveIdea").addEventListener("click", showOverlay);
+
+  document
+    .getElementById("btnSavePerson")
+    .addEventListener("click", savePerson);
+  // document.getElementById("btnSaveIdea").addEventListener("click", saveIdea);
 
   document
     .querySelector(".person-list")
@@ -45,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function hideOverlay(ev) {
-  ev.preventDefault();
+  if (ev) ev.preventDefault();
   document.querySelector(".overlay").classList.remove("active");
   document
     .querySelectorAll(".overlay dialog")
@@ -75,20 +95,6 @@ async function getPeople() {
 
 function buildPeople(people) {
   let ul = document.querySelector("ul.person-list");
-  let months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
   ul.innerHTML = people
     .map((person) => {
       const dob = `${months[person["birth-month"] - 1]} ${person["birth-day"]}`;
@@ -143,7 +149,7 @@ async function getIdeas(id) {
     const id = doc.id;
     ideas.push({
       id,
-      title: data.title,
+      title: data.idea,
       location: data.location,
       bought: data.bought,
       person_id: data["person-id"].id,
@@ -170,5 +176,56 @@ function buildIdeas(ideas) {
   } else {
     ul.innerHTML =
       '<li class="idea"><p></p><p>No Gift Ideas for selected person.</p></li>'; //clear in case there are no records to shows
+  }
+}
+
+async function savePerson(ev) {
+  //function called when user clicks save button from person dialog
+  let name = document.getElementById("name").value;
+  let month = document.getElementById("month").value;
+  let day = document.getElementById("day").value;
+  if (!name || !month || !day) return; //form needs more info
+  const person = {
+    name,
+    "birth-month": month,
+    "birth-day": day,
+  };
+  try {
+    const docRef = await addDoc(collection(db, "people"), person);
+    //1. clear the form fields
+    document.getElementById("name").value = "";
+    document.getElementById("month").value = "";
+    document.getElementById("day").value = "";
+    //2. hide the dialog and the overlay
+    hideOverlay();
+    //3. display a message to the user about success
+    // tellUser(`Person ${name} added to database`);
+    person.id = docRef.id;
+    //4. ADD the new HTML to the <ul> using the new object
+    showPerson(person);
+  } catch (err) {
+    console.error("Error adding document: ", err);
+    //do you want to stay on the dialog?
+    //display a mesage to the user about the problem
+  }
+}
+
+function showPerson(person) {
+  let li = document.getElementById(person.id);
+  if (li) {
+    //update on screen
+    const dob = `${months[person["birth-month"] - 1]} ${person["birth-day"]}`;
+    li.outerHTML = `<li data-id="${person.id}" class="person">
+            <p class="name">${person.name}</p>
+            <p class="dob">${dob}</p>
+          </li>`;
+  } else {
+    //add to screen
+    const dob = `${months[person["birth-month"] - 1]} ${person["birth-day"]}`;
+    li = `<li data-id="${person.id}" class="person">
+            <p class="name">${person.name}</p>
+            <p class="dob">${dob}</p>
+          </li>`;
+    document.querySelector("ul.person-list").innerHTML += li;
   }
 }
