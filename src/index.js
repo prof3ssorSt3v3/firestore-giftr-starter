@@ -122,7 +122,7 @@ function buildPeople(people) {
 		.join("");
 
 	document.querySelectorAll(".person-button.delete").forEach((button) => {
-		button.addEventListener("click", showDeleteConfirm);
+		button.addEventListener("click", deleteConfirm);
 	});
 
 	document.querySelectorAll(".person-button.edit").forEach((button) => {
@@ -138,6 +138,7 @@ function buildPeople(people) {
 	document.querySelectorAll(".person-info").forEach((item) => {
 		item.addEventListener("click", setActivePerson);
 	});
+	giftListener();
 }
 
 function setActivePerson(ev) {
@@ -217,7 +218,7 @@ function buildIdeas(ideas) {
 			})
 			.join("");
 		document.querySelectorAll(".idea-button.delete").forEach((button) => {
-			button.addEventListener("click", showDeleteConfirm);
+			button.addEventListener("click", deleteConfirm);
 		});
 
 		document.querySelectorAll(".idea-button.edit").forEach((button) => {
@@ -311,15 +312,24 @@ async function saveIdea() {
 	}
 }
 
-function showDeleteConfirm(ev) {
-	let personName = ev.target.closest("li").getAttribute("data-name");
-	confirm(`Are you sure you want to delete ${personName}?`);
-	deletePerson();
-	console.log(`Person deleted with id: ${selectedPersonId}`);
+function deleteConfirm(ev) {
+	if (ev.target.getAttribute("data-id") === "btnDeleteIdea") {
+		let ideaName = ev.target.closest("li").getAttribute("data-idea");
+		let ideaId = ev.target.closest("li").getAttribute("data-id");
+		let collection = "gift-ideas";
+		confirm(`Are you sure you want to delete ${ideaName}?`);
+		deleteItem(collection, ideaId);
+	} else {
+		let personName = ev.target.closest("li").getAttribute("data-name");
+		let personId = ev.target.closest("li").getAttribute("data-id");
+		confirm(`Are you sure you want to delete ${personName}?`);
+		let collection = "people";
+		deleteItem(collection, personId);
+	}
 }
 
-async function deletePerson() {
-	await deleteDoc(doc(db, "people", selectedPersonId));
+async function deleteItem(collection, id) {
+	await deleteDoc(doc(db, collection, id));
 }
 
 function hideOverlay(ev) {
@@ -388,6 +398,4 @@ function showOverlay(ev) {
 				.setAttribute("data-id", selectedPersonId);
 		}
 	}
-
-	//TODO: check that person is selected before adding an ide
 }
