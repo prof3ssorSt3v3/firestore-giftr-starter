@@ -7,6 +7,7 @@ import {
   query,
   where,
   addDoc,
+  updateDoc,
 } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -104,7 +105,9 @@ function buildPeople(people) {
   ul.innerHTML = people
     .map((person) => {
       const dob = `${months[person["birth-month"] - 1]} ${person["birth-day"]}`;
-      return `<li data-id="${person.id}" class="person">
+      return `<li data-id="${person.id}" data-name="${person[
+        "name"
+      ].toLowerCase()}" class="person">
             <p class="name">${person.name}</p>
             <p class="dob">${dob}</p>
           </li>`;
@@ -197,17 +200,25 @@ async function savePerson(ev) {
     "birth-day": day,
   };
   try {
-    const docRef = await addDoc(collection(db, "people"), person);
+    let li = document.querySelector(`[data-name="${name.toLowerCase()}"]`);
+    if (li) {
+      const updateDocRef = doc(db, "people", li.dataset.id);
+      await updateDoc(updateDocRef, person);
+      hideOverlay();
+      tellUser("Updated the database");
+    } else {
+      const docRef = await addDoc(collection(db, "people"), person);
+      person.id = docRef.id;
+      hideOverlay();
+      tellUser(`${person.name} added to database`);
+    }
     document.getElementById("name").value = "";
     document.getElementById("month").value = "";
     document.getElementById("day").value = "";
-    hideOverlay();
-    tellUser(name);
-    person.id = docRef.id;
     showPerson(person);
   } catch (err) {
     console.error("Error adding document: ", err);
-    tellUser();
+    tellUser("Error adding document", err);
   }
 }
 
@@ -223,7 +234,8 @@ function showPerson(person) {
   } else {
     //add to screen
     const dob = `${months[person["birth-month"] - 1]} ${person["birth-day"]}`;
-    li = `<li data-id="${person.id}" class="person">
+    let personName = person["name"].toLowerCase();
+    li = `<li data-id="${person.id}" data-name="${personName}" class="person">
             <p class="name">${person.name}</p>
             <p class="dob">${dob}</p>
           </li>`;
@@ -231,17 +243,42 @@ function showPerson(person) {
   }
 }
 
-function tellUser(person) {
+function tellUser(msg, err) {
   const dlg = document.getElementById("tellUser");
-  if (person) {
-    dlg.innerHTML = `<h2>Successful!</h2>
-          <p> <span style="color:#ffcb2a">${person}</span> &nbsp; added to database</p>
+  if (err) {
+    dlg.innerHTML = `<h2>Failed!</h2>
+          <p>${msg}</p>
           <button id="btnOk">Ok</button>`;
   } else {
-    dlg.innerHTML = `<h2>Failed!</h2>
-          <p> Error adding document </p>
+    dlg.innerHTML = `<h2>Successful!</h2>
+          <p>${msg}</p>
           <button id="btnOk">Ok</button>`;
   }
+  // switch (action) {
+  //   case "update":
+  //     dlg.innerHTML = `<h2>Successful!</h2>
+  //         <p>Updated the database</p>
+  //         <button id="btnOk">Ok</button>`;
+  //     break;
+  //   case "error":
+  //     dlg.innerHTML = `<h2>Failed!</h2>
+  //       <p> Error adding document </p>
+  //       <button id="btnOk">Ok</button>`;
+  //     break;
+  //   default:
+  //     dlg.innerHTML = `<h2>Successful!</h2>
+  //       <p> <span style="color:#ffcb2a">${person}</span> &nbsp; added to database</p>
+  //       <button id="btnOk">Ok</button>`;
+  // }
+  // if (person) {
+  //   dlg.innerHTML = `<h2>Successful!</h2>
+  //         <p> <span style="color:#ffcb2a">${person}</span> &nbsp; added to database</p>
+  //         <button id="btnOk">Ok</button>`;
+  // } else {
+  //   dlg.innerHTML = `<h2>Failed!</h2>
+  //         <p> Error adding document </p>
+  //         <button id="btnOk">Ok</button>`;
+  // }
   showOverlay();
   document.getElementById("btnOk").addEventListener("click", hideOverlay);
 }
