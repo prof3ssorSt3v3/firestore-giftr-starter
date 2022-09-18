@@ -198,22 +198,16 @@ async function savePerson(ev) {
   };
   try {
     const docRef = await addDoc(collection(db, "people"), person);
-    //1. clear the form fields
     document.getElementById("name").value = "";
     document.getElementById("month").value = "";
     document.getElementById("day").value = "";
-    //2. hide the dialog and the overlay
     hideOverlay();
-    //3. display a message to the user about success
-    // tellUser(`Person ${name} added to database`);
     tellUser(name);
     person.id = docRef.id;
-    //4. ADD the new HTML to the <ul> using the new object
     showPerson(person);
   } catch (err) {
     console.error("Error adding document: ", err);
-    //do you want to stay on the dialog?
-    //display a mesage to the user about the problem
+    tellUser();
   }
 }
 
@@ -239,9 +233,15 @@ function showPerson(person) {
 
 function tellUser(person) {
   const dlg = document.getElementById("tellUser");
-  dlg.innerHTML = `<h2>Successful!</h2>
-        <p> <span style="color:#ffcb2a">${person}</span> &nbsp; added to database</p>
-        <button id="btnOk">Ok</button>`;
+  if (person) {
+    dlg.innerHTML = `<h2>Successful!</h2>
+          <p> <span style="color:#ffcb2a">${person}</span> &nbsp; added to database</p>
+          <button id="btnOk">Ok</button>`;
+  } else {
+    dlg.innerHTML = `<h2>Failed!</h2>
+          <p> Error adding document </p>
+          <button id="btnOk">Ok</button>`;
+  }
   showOverlay();
   document.getElementById("btnOk").addEventListener("click", hideOverlay);
 }
