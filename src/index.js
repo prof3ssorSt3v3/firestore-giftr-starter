@@ -249,6 +249,13 @@ async function saveIdea() {
 
 function hideOverlay(ev) {
   ev.preventDefault();
+  if(!ev.target.classList.contains('overlay') &&
+    ev.target.id != 'btnCancelIdea' &&
+    ev.target.id != 'btnCancelPerson' &&
+    ev.target.id != 'btnSavePerson' &&
+    ev.target.id != 'btnSaveIdea'
+  ) return;
+
   document.querySelector('.overlay').classList.remove('active');
   document
     .querySelectorAll('.overlay dialog')
