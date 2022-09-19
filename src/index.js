@@ -8,6 +8,7 @@ import {
 	onSnapshot,
 	setDoc,
 	deleteDoc,
+	updateDoc,
 } from "firebase/firestore";
 
 // Firebase configuration
@@ -256,7 +257,7 @@ function buildIdeas(filteredIdeas) {
 				.map((item) => {
 					return `<li data-id="${item.id}" data-idea="${item.idea}" data-location="${item.location}" class="idea">
 								<div class="idea-checkbox">
-								<label for="chk-${item.id}">
+								<label for="chk-${item.id}"> 
 									<input type="checkbox" id="${item.id}"/> Bought
 								</label>
 								</div>
@@ -282,12 +283,24 @@ function buildIdeas(filteredIdeas) {
 	        </li>`;
 				})
 				.join("");
+
+			filteredIdeas.forEach((idea) => {
+				if (idea.isBought) {
+					let checkbox = document.getElementById(idea.id);
+					checkbox.checked = true;
+				}
+			});
 			document.querySelectorAll(".idea-button.delete").forEach((button) => {
 				button.addEventListener("click", deleteConfirm);
 			});
 
 			document.querySelectorAll(".idea-button.edit").forEach((button) => {
 				button.addEventListener("click", showOverlay);
+			});
+
+			let checkboxes = document.querySelectorAll('[type="checkbox"]');
+			checkboxes.forEach((checkbox) => {
+				checkbox.addEventListener("click", markBought);
 			});
 		} else {
 			let ul = document.querySelector("ul.idea-list");
@@ -299,6 +312,16 @@ function buildIdeas(filteredIdeas) {
 		// if there's no people
 		ul.innerHTML = ``;
 	}
+}
+
+function markBought(ev) {
+	let isBoughtValue = ev.target.checked;
+
+	const ideaRef = doc(db, "gift-ideas", ev.target.id);
+
+	updateDoc(ideaRef, {
+		isBought: isBoughtValue,
+	});
 }
 
 //Saving ideas
@@ -321,6 +344,7 @@ async function saveIdea() {
 			idea,
 			location,
 			"person-id": personRef,
+			isBought: false,
 		};
 
 		let id = document.getElementById("btnSaveIdea").getAttribute("data-id");
