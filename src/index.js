@@ -29,6 +29,21 @@ let selectedPersonId = null;
 let people = [];
 let ideas = [];
 
+const months = [
+	"January",
+	"February",
+	"March",
+	"April",
+	"May",
+	"June",
+	"July",
+	"August",
+	"September",
+	"October",
+	"November",
+	"December",
+];
+
 //Set up the dom events
 document.addEventListener("DOMContentLoaded", () => {
 	document
@@ -47,6 +62,12 @@ document.addEventListener("DOMContentLoaded", () => {
 		.getElementById("btnSavePerson")
 		.addEventListener("click", savePerson);
 	document.getElementById("btnSaveIdea").addEventListener("click", saveIdea);
+
+	document
+		.getElementById("location")
+		.addEventListener("input", removeErrorState);
+
+	document.getElementById("title").addEventListener("input", removeErrorState);
 });
 
 ///////////////////////////////////////////////////
@@ -74,29 +95,17 @@ const peopleChange = onSnapshot(
 
 //Building people
 function buildPeople(people) {
-	//build the HTML
 	let ul = document.querySelector("ul.person-list");
-
-	let months = [
-		"January",
-		"February",
-		"March",
-		"April",
-		"May",
-		"June",
-		"July",
-		"August",
-		"September",
-		"October",
-		"November",
-		"December",
-	];
-	//replace the old ul contents with the new.
-	ul.innerHTML = people
-		.map((person) => {
-			const dob = `${months[person["birth-month"] - 1]} ${person["birth-day"]}`;
-			//Use the number of the birth-month less 1 as the index for the months array
-			return `<li data-id="${person.id}" data-name="${person.name}" data-month="${person["birth-month"]}" data-day="${person["birth-day"]}" class="person">
+	console.log("build people");
+	if (!people.length == 0) {
+		//replace the old ul contents with the new.
+		ul.innerHTML = people
+			.map((person) => {
+				const dob = `${months[person["birth-month"] - 1]} ${
+					person["birth-day"]
+				}`;
+				//Use the number of the birth-month less 1 as the index for the months array
+				return `<li data-id="${person.id}" data-name="${person.name}" data-month="${person["birth-month"]}" data-day="${person["birth-day"]}" class="person">
 						<div class ="person-container">
 						<div class="person-info">
 						<p class="name">${person.name}</p>
@@ -117,26 +126,35 @@ function buildPeople(people) {
 						</div>
 						
           </li>`;
-		})
-		.join("");
+			})
+			.join("");
 
-	document.querySelectorAll(".person-button.delete").forEach((button) => {
-		button.addEventListener("click", deleteConfirm);
-	});
+		document.querySelectorAll(".person-button.delete").forEach((button) => {
+			button.addEventListener("click", deleteConfirm);
+		});
 
-	document.querySelectorAll(".person-button.edit").forEach((button) => {
-		button.addEventListener("click", showOverlay);
-	});
+		document.querySelectorAll(".person-button.edit").forEach((button) => {
+			button.addEventListener("click", showOverlay);
+		});
 
-	//making 1st person selected by default
-	let selectedPerson = document.querySelector("li.person");
-	selectedPerson.classList.add("selected");
+		//making 1st person selected by default
+		let selectedPerson = document.querySelector("li.person");
+		selectedPerson.classList.add("selected");
 
-	selectedPersonId = selectedPerson.getAttribute("data-id");
+		selectedPersonId = selectedPerson.getAttribute("data-id");
 
-	document.querySelectorAll(".person-info").forEach((item) => {
-		item.addEventListener("click", setActivePerson);
-	});
+		document.querySelectorAll(".person-info").forEach((item) => {
+			item.addEventListener("click", setActivePerson);
+		});
+	} else {
+		ul.innerHTML = `
+		<div class="no-items">
+		<p>
+		Looks like there's no people added yet. Click "Add person".
+		</p>
+		</div>
+		`;
+	}
 }
 
 //Setting selected person
@@ -217,20 +235,26 @@ const ideasChange = onSnapshot(gQuery, (querySnapshot) => {
 
 //Gettings ideas from the local array
 function getIdeas() {
-	const personRef = doc(collection(db, "people"), selectedPersonId);
-	let filteredIdeas = ideas.filter(
-		(obj) => obj["person-id"].id === personRef.id
-	);
-	buildIdeas(filteredIdeas);
+	if (!people.length == 0) {
+		const personRef = doc(collection(db, "people"), selectedPersonId);
+		let filteredIdeas = ideas.filter(
+			(obj) => obj["person-id"].id === personRef.id
+		);
+		buildIdeas(filteredIdeas);
+	} else buildIdeas();
 }
 
 //Bulding ideas
 function buildIdeas(filteredIdeas) {
 	let ul = document.querySelector("ul.idea-list");
-	if (!filteredIdeas.length == 0) {
-		ul.innerHTML = filteredIdeas
-			.map((item) => {
-				return `<li data-id="${item.id}" data-idea="${item.idea}" data-location="${item.location}" class="idea">
+
+	//Checking if there are any people
+	if (!people.length == 0) {
+		//Checking if there are any ideas for this people
+		if (filteredIdeas.length > 0) {
+			ul.innerHTML = filteredIdeas
+				.map((item) => {
+					return `<li data-id="${item.id}" data-idea="${item.idea}" data-location="${item.location}" class="idea">
 								<div class="idea-checkbox">
 								<label for="chk-${item.id}">
 									<input type="checkbox" id="${item.id}"/> Bought
@@ -256,60 +280,73 @@ function buildIdeas(filteredIdeas) {
 									</div>
 								</div>
 	        </li>`;
-			})
-			.join("");
-		document.querySelectorAll(".idea-button.delete").forEach((button) => {
-			button.addEventListener("click", deleteConfirm);
-		});
+				})
+				.join("");
+			document.querySelectorAll(".idea-button.delete").forEach((button) => {
+				button.addEventListener("click", deleteConfirm);
+			});
 
-		document.querySelectorAll(".idea-button.edit").forEach((button) => {
-			button.addEventListener("click", showOverlay);
-		});
-	} else {
-		let ul = document.querySelector("ul.idea-list");
-		ul.innerHTML = `<li class="idea"> 
+			document.querySelectorAll(".idea-button.edit").forEach((button) => {
+				button.addEventListener("click", showOverlay);
+			});
+		} else {
+			let ul = document.querySelector("ul.idea-list");
+			ul.innerHTML = `<li class="idea"> 
 						<p class="title" >No ideas for this person</p>
 	        </li>`;
+		}
+	} else {
+		// if there's no people
+		ul.innerHTML = ``;
 	}
 }
 
 //Saving ideas
 async function saveIdea() {
-	let idea = document.getElementById("title").value;
-	let location = document.getElementById("location").value;
+	let ideaInput = document.getElementById("title");
+	let idea = ideaInput.value;
+
+	let locationInput = document.getElementById("location");
+	let location = locationInput.value;
 
 	const personRef = doc(collection(db, "people"), selectedPersonId);
-	if (!idea || !location) return;
-
-	const giftIdea = {
-		idea,
-		location,
-		"person-id": personRef,
-	};
-
-	let id = document.getElementById("btnSaveIdea").getAttribute("data-id");
-
-	if (!id) {
-		try {
-			const docRef = await addDoc(collection(db, "gift-ideas"), giftIdea);
-			console.log("Document written with ID: ", docRef.id);
-			//1. clear the form fields
-			document.getElementById("title").value = "";
-			document.getElementById("location").value = "";
-			//2. hide the dialog and the overlay
-			hideOverlay();
-			//3. display a message to the user about success
-			alert(`${idea} added`);
-			giftIdea.id = docRef.id;
-			//4. ADD the new HTML to the <ul> using the new object
-		} catch (err) {
-			console.error("Error adding document: ", err);
-			//do you want to stay on the dialog?
-			//display a mesage to the user about the problem
+	if (!idea || !location) {
+		if (!idea) {
+			ideaInput.classList.add("error");
+		} else {
+			locationInput.classList.add("error");
 		}
 	} else {
-		const docRef = await setDoc(doc(db, "gift-ideas", id), giftIdea);
-		hideOverlay();
+		const giftIdea = {
+			idea,
+			location,
+			"person-id": personRef,
+		};
+
+		let id = document.getElementById("btnSaveIdea").getAttribute("data-id");
+
+		if (!id) {
+			try {
+				const docRef = await addDoc(collection(db, "gift-ideas"), giftIdea);
+				console.log("Document written with ID: ", docRef.id);
+				//1. clear the form fields
+				document.getElementById("title").value = "";
+				document.getElementById("location").value = "";
+				//2. hide the dialog and the overlay
+				hideOverlay();
+				//3. display a message to the user about success
+				alert(`${idea} added`);
+				giftIdea.id = docRef.id;
+				//4. ADD the new HTML to the <ul> using the new object
+			} catch (err) {
+				console.error("Error adding document: ", err);
+				//do you want to stay on the dialog?
+				//display a mesage to the user about the problem
+			}
+		} else {
+			const docRef = await setDoc(doc(db, "gift-ideas", id), giftIdea);
+			hideOverlay();
+		}
 	}
 }
 
@@ -324,18 +361,18 @@ function deleteConfirm(ev) {
 		let ideaId = ev.target.closest("li").getAttribute("data-id");
 		let collection = "gift-ideas";
 
-		confirm(`Are you sure you want to delete ${ideaName}?`);
-
-		deleteItem(collection, ideaId);
+		if (confirm(`Are you sure you want to delete ${ideaName}?`)) {
+			deleteItem(collection, ideaId);
+		}
 	} else {
 		//If deleting an idea
 		let personName = ev.target.closest("li").getAttribute("data-name");
 		let personId = ev.target.closest("li").getAttribute("data-id");
 		let collection = "people";
 
-		confirm(`Are you sure you want to delete ${personName}?`);
-
-		deleteItem(collection, personId);
+		if (confirm(`Are you sure you want to delete ${personName}?`)) {
+			deleteItem(collection, personId);
+		}
 	}
 }
 
@@ -412,4 +449,8 @@ function showOverlay(ev) {
 				.setAttribute("data-id", selectedPersonId);
 		}
 	}
+}
+
+function removeErrorState(ev) {
+	document.getElementById(ev.target.id).classList.remove("error");
 }
