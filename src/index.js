@@ -9,6 +9,8 @@ import {
 	setDoc,
 	deleteDoc,
 	updateDoc,
+	where,
+	getDocs,
 } from "firebase/firestore";
 
 // Firebase configuration
@@ -284,12 +286,15 @@ function buildIdeas(filteredIdeas) {
 				})
 				.join("");
 
+			// Marking idea as bought in the UI
 			filteredIdeas.forEach((idea) => {
 				if (idea.isBought) {
 					let checkbox = document.getElementById(idea.id);
 					checkbox.checked = true;
 				}
 			});
+
+			// Event listeners for ideas
 			document.querySelectorAll(".idea-button.delete").forEach((button) => {
 				button.addEventListener("click", deleteConfirm);
 			});
@@ -314,6 +319,7 @@ function buildIdeas(filteredIdeas) {
 	}
 }
 
+// Marking idea as bought/not bought
 function markBought(ev) {
 	let isBoughtValue = ev.target.checked;
 
@@ -383,7 +389,7 @@ function deleteConfirm(ev) {
 	if (ev.target.getAttribute("data-id") === "btnDeleteIdea") {
 		let ideaName = ev.target.closest("li").getAttribute("data-idea");
 		let ideaId = ev.target.closest("li").getAttribute("data-id");
-		let collection = "gift-ideas";
+		let collectionName = "gift-ideas";
 
 		if (confirm(`Are you sure you want to delete ${ideaName}?`)) {
 			deleteItem(collection, ideaId);
@@ -392,17 +398,32 @@ function deleteConfirm(ev) {
 		//If deleting an idea
 		let personName = ev.target.closest("li").getAttribute("data-name");
 		let personId = ev.target.closest("li").getAttribute("data-id");
-		let collection = "people";
+		let collectionName = "people";
 
 		if (confirm(`Are you sure you want to delete ${personName}?`)) {
-			deleteItem(collection, personId);
+			deleteItem(collectionName, personId);
 		}
 	}
 }
 
-async function deleteItem(collection, id) {
-	await deleteDoc(doc(db, collection, id));
+async function deleteItem(collectionName, id) {
+	await deleteDoc(doc(db, collectionName, id));
 	getIdeas();
+
+	// Deleteing all ideas for a deleted person
+	if (collectionName == "people") {
+		const personRef = doc(collection(db, "people"), id);
+		const docs = query(
+			collection(db, "gift-ideas"),
+			where("person-id", "==", personRef)
+		);
+
+		let querySnapshot = await getDocs(docs);
+
+		querySnapshot.forEach((item) => {
+			deleteDoc(doc(db, "gift-ideas", item.id));
+		});
+	}
 }
 
 ////////////////////////////////////////////////////
