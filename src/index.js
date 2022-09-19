@@ -392,7 +392,7 @@ function deleteConfirm(ev) {
 		let collectionName = "gift-ideas";
 
 		if (confirm(`Are you sure you want to delete ${ideaName}?`)) {
-			deleteItem(collection, ideaId);
+			deleteItem(collectionName, ideaId);
 		}
 	} else {
 		//If deleting an idea
