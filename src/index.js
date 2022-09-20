@@ -96,7 +96,26 @@
  
    loadData();
  });
- 
+ function hideOverlay(ev) {
+     ev.preventDefault();
+     if (
+       !ev.target.classList.contains("overlay") &&
+       ev.target.id != "btnCancelIdea" &&
+       ev.target.id != "btnCancelPerson"
+     )
+       return;
+   
+     document.querySelector(".overlay").classList.remove("active");
+     document
+       .querySelectorAll(".overlay dialog")
+       .forEach((dialog) => dialog.classList.remove("active"));
+   }
+   function showOverlay(ev) {
+     ev.preventDefault();
+     document.querySelector(".overlay").classList.add("active");
+     const id = ev.target.id === "btnAddPerson" ? "dlgPerson" : "dlgIdea";
+     document.getElementById(id).classList.add("active");
+   }
  function loadData() {
    getPeople();
  }
@@ -135,6 +154,33 @@
    let li = document.querySelector(`[data-id="${personId}"]`);
  }
  
+ //save person functionality 
+ 
+ 
+ //show person functionality
+ 
+ 
+ /*/build selected person functionality*
+  *user clicks inisde the list
+  if the user clicks on the edit or delete pbutton
+  loading person details
+  */
+ 
+ 
+ 
+ 
+ 
+ //delete person functionality 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ //get idea functionality 
  async function getIdeas(id) {
    const personRef = doc(collection(db, "people"), id);
    const ideaCollectionRef = collection(db, "gift-ideas"); 
@@ -162,6 +208,7 @@
    buildIdeas(ideas);
  }
  
+ //build idea
  function buildIdeas(ideas) {
    const ul = document.querySelector(".idea-list");
    if (ideas.length) {
@@ -184,6 +231,7 @@
  }
  
  
+ //save idea 
  
  
  
@@ -205,26 +253,6 @@
  
  
  
- function hideOverlay(ev) {
-   ev.preventDefault();
-   if (
-     !ev.target.classList.contains("overlay") &&
-     ev.target.id != "btnCancelIdea" &&
-     ev.target.id != "btnCancelPerson"
-   )
-     return;
- 
-   document.querySelector(".overlay").classList.remove("active");
-   document
-     .querySelectorAll(".overlay dialog")
-     .forEach((dialog) => dialog.classList.remove("active"));
- }
- function showOverlay(ev) {
-   ev.preventDefault();
-   document.querySelector(".overlay").classList.add("active");
-   const id = ev.target.id === "btnAddPerson" ? "dlgPerson" : "dlgIdea";
-   document.getElementById(id).classList.add("active");
- }
  
  /*learing the basics
  const cofRef = collection(db, 'people');
