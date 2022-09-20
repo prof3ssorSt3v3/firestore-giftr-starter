@@ -175,35 +175,22 @@
   }
   
   function handleSelectPerson(ev){
-    //ev.target; - could be the button OR anything in the ul.
-    const li = ev.target.closest('.person'); //see if there is a parent <li class="person">
-    // console.log(`${li.getAttribute('data-id')} was clicked`);
-    const id = li ? li.getAttribute('data-id') : null; // if li exists then the user clicked inside an <li>
+    const li = ev.target.closest('.person'); 
+    const id = li ? li.getAttribute('data-id') : null;
     
     if(id){
-      //user clicked inside li
       personId = id;
-      //did they click the li content OR an edit button OR a delete button?
       if(ev.target.classList.contains('edit')){
-        //EDIT the doc using the id to get a docRef
-        //show the dialog form to EDIT the doc (same form as ADD)
-        //Load all the Person document details into the form from docRef
+  
       }else if(ev.target.classList.contains('delete')){
-        //DELETE the doc using the id to get a docRef
-        //do a confirmation before deleting 
       }else{
-        //content inside the <li> but NOT a <button> was clicked 
-        //remove any previously selected styles
         document.querySelector('li.selected')?.classList.remove('selected');
-        //Highlight the newly selected person 
         li.classList.add('selected');
-        //and load all the gift idea documents for that person
         getIdeas(id);
+        console.log(id);//testing
       }
     }else{
-      //clicked a button not inside <li class="person">
-      //Show the dialog form to ADD the doc (same form as EDIT)
-      //showOverlay function can be called from here or with the click listener in DOMContentLoaded, not both
+    console.log("no id selected");
     }
   }
 
