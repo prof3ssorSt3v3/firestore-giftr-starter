@@ -26,9 +26,9 @@
 
 // Import the functions you need from the SDKs you need
 //database references
-import { initializeApp } from "firebase/app";
+import { initializeApp } from "firebase/app"; //core of firebase library
 import {
-  getFirestore,
+  getFirestore, //initialze firestore service
   collection,
   query,
   whre,
@@ -40,8 +40,8 @@ import {
   orderBy,
 } from "firebase/firestore";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Your web app's Firebase configuration object
+//next step: connect to firebase project from the front end
 const firebaseConfig = {
   apiKey: "AIzaSyAO23Vn0VmMWHP11CYoUWshK7bpL_iTTnI",
   authDomain: "fire-giftr-fce59.firebaseapp.com",
@@ -52,11 +52,14 @@ const firebaseConfig = {
   measurementId: "G-11CPY45CG8",
 };
 
+
+
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const selectedPersonId = null;
-const people = [];
+const app = initializeApp(firebaseConfig); //connects to firebase backend
+const db = getFirestore(app); //referenece for the db
+let personId = null;
+let people = [];
+let ideas = [];
 const months = [
   "January",
   "February",
@@ -72,7 +75,9 @@ const months = [
   "December",
 ];
 
-document.addEventListener("DOMContentLoaded", () => {
+//Setting up event listeners
+//document.addEventListener("DOMContentLoaded", init);
+document.addEventListener("DOMContentLoaded", async () => {
   //set up the dom events
   document
     .getElementById("btnCancelPerson")
@@ -86,10 +91,111 @@ document.addEventListener("DOMContentLoaded", () => {
     .getElementById("btnAddPerson")
     .addEventListener("click", showOverlay);
   document.getElementById("btnAddIdea").addEventListener("click", showOverlay);
+
+  document
+    .getElementById("btnSavePerson")
+    .addEventListener("click", savePerson);
+  document.getElementById("btnSaveIdea").addEventListener("click", saveIdea);
+
+  document
+    .querySelector(".person-list")
+    .addEventListener("click", handleSelectPerson);
+
+  loadData();
 });
+
+function loadData() {
+  getPeople();
+}
+
+/**people functionality */
+async function getPeople() {
+  const querySnapshot = await getDocs(collection(db, "people"));
+  querySnapshot.forEach((doc) => {
+    const data = doc.data();
+    const id = doc.id;
+    people.push({ id, ...data });
+  });
+
+  personId = buildPeople(people);
+  console.log(people);
+  let li = document.querySelector(`[data-id="${personId}"]`);
+  console.log(li);
+
+  li.click();
+}
+
+//building the html
+async function buildPeople(people) {
+  let ul = document.querySelector("ul.person-list");
+  ul.innerHTML = people
+    .map((person) => {
+      const dob = `${months[person["birth-month"] - 1]} ${person["birth-day"]}`;
+      return `<li data-id="${person.id}" class="person">
+            <p class="name">${person.name}</p>
+            <p class="dob">${dob}</p>
+          </li>`;
+    })
+    .join("");
+
+  let selected = people[0].id;
+  return selected;
+}
+
+/**gift functionality */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function hideOverlay(ev) {
   ev.preventDefault();
+  if (
+    !ev.target.classList.contains("overlay") &&
+    ev.target.id != "btnCancelIdea" &&
+    ev.target.id != "btnCancelPerson"
+  )
+    return;
+
   document.querySelector(".overlay").classList.remove("active");
   document
     .querySelectorAll(".overlay dialog")
@@ -99,6 +205,5 @@ function showOverlay(ev) {
   ev.preventDefault();
   document.querySelector(".overlay").classList.add("active");
   const id = ev.target.id === "btnAddPerson" ? "dlgPerson" : "dlgIdea";
-  //TODO: check that person is selected before adding an idea
   document.getElementById(id).classList.add("active");
 }
