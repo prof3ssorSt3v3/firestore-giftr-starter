@@ -69,7 +69,7 @@
    "November",
    "December",
  ];
- 
+
  document.addEventListener("DOMContentLoaded", () => {
    //set up the dom events
    document
@@ -96,12 +96,19 @@
  
    loadData();
  });
+
+
+
+//whenever user clicks on the buton, the overlay is hidden: 
+//for the person and idea buttons 
  function hideOverlay(ev) {
      ev.preventDefault();
      if (
        !ev.target.classList.contains("overlay") &&
        ev.target.id != "btnCancelIdea" &&
        ev.target.id != "btnCancelPerson"
+       ev.target.id != "btnSaveIdea" &&
+       ev.target.id != "btnSavePerson"
      )
        return;
    
@@ -110,160 +117,124 @@
        .querySelectorAll(".overlay dialog")
        .forEach((dialog) => dialog.classList.remove("active"));
    }
+
+
    function showOverlay(ev) {
      ev.preventDefault();
      document.querySelector(".overlay").classList.add("active");
      const id = ev.target.id === "btnAddPerson" ? "dlgPerson" : "dlgIdea";
      document.getElementById(id).classList.add("active");
    }
+
+
+
+
+
+
+
+
+
+
+
+
  function loadData() {
    getPeople();
  }
  
  /**people functionality */
- //getPerson functionality
- async function getPeople() {
-   const querySnapshot = await getDocs(collection(db, "people")); //get a reference to the people collection
-   querySnapshot.forEach((doc) => {
-     //getting the data
-     const data = doc.data();
-     const id = doc.id;
-     people.push({ id, ...data });
-   });
-   buildPeople(people);
- }
+ async function getPeople(){
+    const querySnapshot = await getDocs(collection(db, 'people'));
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      const id = doc.id;
+      people.push({id, ...data});
+    });
+    personId= buildPeople(people);
+    let li = document.querySelector(`[data-id="${personId}"]`);
+     console.log(li);
+    li.click();
+  }
+  
+  function buildPeople(people){
+    //build the HTML
+    const ul = document.querySelector('ul.person-list');
+    //replace the old ul contents with the new.
+    ul.innerHTML = people.map(person=>{
+      const dob = `${months[person['birth-month']-1]} ${person['birth-day']}`;
+      // console.log(`show ${person.id}`);
+      //Use the number of the birth-month less 1 as the index for the months array
+      return `<li data-id="${person.id}" class="person">
+                <p class="name">${person.name}</p>
+                <p class="dob">${dob}</p>
+              </li>`;
+    }).join('');
+    // return the first person's id
+    let selected = people[0].id;
+    // console.log(selected);
+    return selected;
+  }
+  
+
  
- //build person functionality
- function buildPeople(people) {
-   //build the HTML
-   let ul = document.querySelector("ul.person-list");
-   ul.innerHTML = people
-     .map((person) => {
-       const dob = `${months[person["birth-month"] - 1]} ${person["birth-day"]}`;
-       return `<div data-id="${person.id}" class="person">
-               <p class="name">${person.name}</p>
-               <p class="dob">${dob}</p>
-             </div>
-             <div class="personButtons">
-             <button class="editPerson">Edit</button>
-             <button class="deletePerson">Delete</button>
-             </div>
-             </div>`;
-     })
-     .join("");
-   let li = document.querySelector(`[data-id="${personId}"]`);
- }
- 
- //save person functionality 
- 
- 
- //show person functionality
- 
- 
- /*/build selected person functionality*
-  *user clicks inisde the list
-  if the user clicks on the edit or delete pbutton
-  loading person details
-  */
- 
- 
- 
- 
- 
- //delete person functionality 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- //get idea functionality 
- async function getIdeas(id) {
-   const personRef = doc(collection(db, "people"), id);
-   const ideaCollectionRef = collection(db, "gift-ideas"); 
-   const docs = query(
-     ideaCollectionRef,
-     where("person-id", "==", personRef),
-     orderBy("birth-month")
-   );
-   const querySnapshot = await getDocs(docs);
-   const ideas = [];
-   querySnapshot.forEach((doc) => {
-     const data = doc.data();
-     const id = doc.id;
- 
-     ideas.push({
-       id,
-       title: data.title,
-       location: data.location,
-       bought: data.bought,
-       person_id: data["person-id"].id,
-       person_ref: data["person-id"],
-     });
-   });
- 
-   buildIdeas(ideas);
- }
- 
- //build idea
- function buildIdeas(ideas) {
-   const ul = document.querySelector(".idea-list");
-   if (ideas.length) {
-     ul.innerHTML = ideas
-       .map((idea) => {
-         console.log(`show ${idea.id}`);
-         return `<li class="idea" data-id="${idea.id}">
-                   <label for="chk-${idea.id}"
-                     ><input type="checkbox" id="chk-${idea.id}" /> Bought</label
-                   >
-                   <p class="title">${idea.title}</p>
-                   <p class="location">${idea.location}</p>
-                 </li>`;
-       })
-       .join("");
-   } else {
-     ul.innerHTML =
-       '<li class="idea"><p></p><p>No Gift Ideas for selected person.</p></li>';
-   }
- }
- 
- 
- //save idea 
+  
+  async function getIdeas(id){
+    //the person-id property in gift-ideas will be like `/people/lasdjkflaskdfjsdlfk`
+    //and it is a REFERENCE not a string. So, we use a reference to the person object
+    const personRef = doc(collection(db, 'people'), id);
+    const ideaCollectionRef = collection(db, "gift-ideas"); //collection we want to query
+    const docs = query(
+      ideaCollectionRef,
+      where('person-id', '==', personRef),
+      orderBy('birth-month')
+    );
+    const querySnapshot = await getDocs(docs);
+    const ideas = [];
+    querySnapshot.forEach((doc) => {
+      //every `doc` object has a `id` property that holds the `_id` value from Firestore.
+      //every `doc` object has a doc() method that gives you a JS object with all the properties
+      const data = doc.data();
+      const id = doc.id;
+      //person_id is a reference type
+      //we want the actual id string in our object use id to get the _id
+      // console.log(data['person-id']);
+      ideas.push({id, 
+        title: data.title,
+        location: data.location,
+        bought: data.bought,
+        person_id: data['person-id'].id,
+        person_ref: data['person-id'],
+      });
+  
+    });
+    //now build the HTML from the ideas array
+    buildIdeas(ideas);
+  }
+  
+  function buildIdeas(ideas){
+    const ul = document.querySelector('.idea-list');
+    if(ideas.length){
+      ul.innerHTML = ideas.map(idea=>{
+        // console.log(`show ${idea.id}`);
+        return `<li class="idea" data-id="${idea.id}">
+                  <label for="chk-${idea.id}"
+                    ><input type="checkbox" id="chk-${idea.id}" /> Bought</label
+                  >
+                  <p class="title">${idea.title}</p>
+                  <p class="location">${idea.location}</p>
+                </li>`;
+      }).join('');
+    }else{
+      ul.innerHTML = '<li class="idea"><p></p><p>No Gift Ideas for selected person.</p></li>'; //clear in case there are no records to shows
+    }
+    //add listener for 'change' or 'input' event on EVERY checkbox '.idea [type="checkbox"]'
+    // which will call a function to update the `bought` value for the document
+  }
+
+  
+
+
  
  
  
  
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- /*learing the basics
- const cofRef = collection(db, 'people');
- getDocs(cofRef)
- .then((snapshot) => {
-     let people = []
-     snapshot.docs.forEach((doc) =>{
-     people.push({...doc.data(), id: doc.id})
-     }
- 
-     )
-     console.log
-   */
  
