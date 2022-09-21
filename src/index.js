@@ -130,6 +130,9 @@ function hideOverlay(ev) {
     .querySelectorAll(".overlay dialog")
     .forEach((dialog) => dialog.classList.remove("active"));
 }
+
+
+
 function showOverlay(ev) {
   ev.preventDefault();
   document.querySelector(".overlay").classList.add("active");
@@ -140,6 +143,10 @@ function showOverlay(ev) {
 function loadData() {
   getPeople();
 }
+
+
+
+
 
 /**people functionality */
 //getPerson functionality
@@ -177,6 +184,8 @@ function buildPeople(people) {
   li.click();
 }
 
+
+
 function showPerson(person) {
   const ul = document.querySelector("ul.person-list");
   const dob = `${months[person["birth-month"] - 1]} ${person["birth-day"]}`;
@@ -189,49 +198,33 @@ function showPerson(person) {
 }
 
 function handleSelectPerson(ev) {
-  const li = ev.target.closest(".person"); //see if there is a parent <li class="person">
-  // console.log(`${li.getAttribute('data-id')} was clicked`);
-  const id = li ? li.getAttribute("data-id") : null; // if li exists then the user clicked inside an <li>
+  const li = ev.target.closest(".person"); 
+  const id = li ? li.getAttribute("data-id") : null; 
 
   if (id) {
-    //user clicked inside li
     personId = id;
-    //did they click the li content OR an edit button OR a delete button?
     if (ev.target.classList.contains("edit")) {
-      //EDIT the doc using the id to get a docRef
-      //show the dialog form to EDIT the doc (same form as ADD)
-      //Load all the Person document details into the form from docRef
     } else if (ev.target.classList.contains("delete")) {
-      //DELETE the doc using the id to get a docRef
-      //do a confirmation before deleting
+
     } else {
-      //content inside the <li> but NOT a <button> was clicked
-      //remove any previously selected styles
       document.querySelector("li.selected")?.classList.remove("selected");
-      //Highlight the newly selected person
       li.classList.add("selected");
-      //and load all the gift idea documents for that person
+  
       getIdeas(id);
     }
   } else {
-    //clicked a button not inside <li class="person">
-    //Show the dialog form to ADD the doc (same form as EDIT)
-    //showOverlay function can be called from here or with the click listener in DOMContentLoaded, not both
+    
   }
 }
 
+
 async function getIdeas(id) {
-  //the person-id property in gift-ideas will be like `/people/lasdjkflaskdfjsdlfk`
-  //and it is a REFERENCE not a string. So, we use a reference to the person object
   const personRef = doc(collection(db, "people"), id);
-  const ideaCollectionRef = collection(db, "gift-ideas"); //collection we want to query
-  const docs = query(
-    ideaCollectionRef,
-    where("person-id", "==", personRef),
-    orderBy("birth-month")
-  );
+  const ideaCollectionRef = collection(db, "gift-ideas"); 
+  const docs = query(ideaCollectionRef,where("person-id", "==", personRef));
   const querySnapshot = await getDocs(docs);
   const ideas = [];
+; 
   querySnapshot.forEach((doc) => {
     //every `doc` object has a `id` property that holds the `_id` value from Firestore.
     //every `doc` object has a doc() method that gives you a JS object with all the properties
