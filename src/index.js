@@ -75,9 +75,11 @@
    document
      .getElementById("btnCancelPerson")
      .addEventListener("click", hideOverlay);
+
    document
      .getElementById("btnCancelIdea")
      .addEventListener("click", hideOverlay);
+
    document.querySelector(".overlay").addEventListener("click", hideOverlay);
  
    document
@@ -93,6 +95,8 @@
    document
      .querySelector(".person-list")
      .addEventListener("click", handleSelectPerson);
+
+  document.getElementById("")
  
    loadData();
  });
