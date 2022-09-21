@@ -1,7 +1,7 @@
 :root {
-  --dark-purple: #f5820d;
-  --light-pruplr: #ffcb2a;
-  --very-light-purple: #ffeb9a;
+  --dark-purple: #ac9fbb;
+  --light-pruplr: #ddbdd5;
+  --very-light-purple: #f7ebec;
   --radii: 0.4rem;
 }
 * {
@@ -30,11 +30,13 @@ header h1 {
   font-weight: 500;
   color: #fff;
   text-shadow: 2px 2px 2px var(--dark-purple);
+  text-align: center;
 }
 header h2 {
-  font-size: 2.5rem;
+  font-size: 1rem;
   font-weight: 300;
   color: var(--dark-purple);
+  text-align: center;
 }
 main {
   display: flex;
@@ -47,6 +49,16 @@ main > section {
   flex-grow: 1;
   flex-shrink: 1;
 }
+section.people{
+  display: flex;
+  flex-direction: column;
+}
+@media (max-width: 800px) {
+  section.people {
+    flex-direction: row;
+  }
+}
+
 section.ideas {
   min-height: 100vh;
   padding-left: 1rem;
@@ -57,6 +69,8 @@ section h2 {
   color: var(--dark-purple);
   display: flex;
   justify-content: space-between;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }
 section h2 > button {
   margin-right: 4rem;
@@ -100,7 +114,7 @@ ul {
   margin: 1rem 0;
   display: grid;
   /*usenamedgridareas*/
-  grid-template-areas: 'tab top' 'tab bottom';
+  grid-template-areas: "tab top" "tab bottom";
   grid-template-columns: 1fr 4fr;
   background-color: var(--very-light-purple);
   -webkit-border-radius: var(--radii);
@@ -117,10 +131,10 @@ ul {
   grid-area: tab;
   align-self: center;
 }
-.idea-list .idea label:has(input[type='checkbox']:checked) {
+.idea-list .idea label:has(input[type="checkbox"]:checked) {
   color: #555;
 }
-.idea-list .idea [type='checkbox'] {
+.idea-list .idea [type="checkbox"] {
   accent-color: var(--light-purple);
 }
 .idea-list p.title {
@@ -192,7 +206,8 @@ dialog.active :is(input, button) {
   font-family: inherit;
   font-weight: inherit;
 }
-dialog button {
+dialog button,
+.deleteButtons button {
   margin: 0 2rem;
   padding: 0.1rem 2rem;
   border: 1px solid var(--dark-purple);
@@ -203,4 +218,17 @@ dialog button {
 }
 :is(dialog, h2) button:active {
   background-color: var(--light-purple);
+}
+
+li {
+  display: flex;
+}
+
+.editPerson,
+.deletePerson {
+  margin: 0 2rem;
+  padding: 0.1rem 2rem;
+  background-color: var(--very-light-purple);
+  border-radius: 2rem;
+  cursor: pointer;
 }
