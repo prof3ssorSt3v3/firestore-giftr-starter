@@ -220,19 +220,15 @@ function handleSelectPerson(ev) {
 
 async function getIdeas(id) {
   const personRef = doc(collection(db, "people"), id);
-  const ideaCollectionRef = collection(db, "gift-ideas"); 
+  const ideaCollectionRef = collection(db, "giift-ideas"); 
   const docs = query(ideaCollectionRef,where("person-id", "==", personRef));
   const querySnapshot = await getDocs(docs);
   const ideas = [];
 ; 
   querySnapshot.forEach((doc) => {
-    //every `doc` object has a `id` property that holds the `_id` value from Firestore.
-    //every `doc` object has a doc() method that gives you a JS object with all the properties
     const data = doc.data();
     const id = doc.id;
-    //person_id is a reference type
-    //we want the actual id string in our object use id to get the _id
-    // console.log(data['person-id']);
+   // console.log(data['person-id']);
     ideas.push({
       id,
       title: data.title,
@@ -251,7 +247,6 @@ function buildIdeas(ideas) {
   if (ideas.length) {
     ul.innerHTML = ideas
       .map((idea) => {
-        // console.log(`show ${idea.id}`);
         return `<li class="idea" data-id="${idea.id}">
                    <label for="chk-${idea.id}"
                      ><input type="checkbox" id="chk-${idea.id}" /> Bought</label
@@ -265,9 +260,12 @@ function buildIdeas(ideas) {
     ul.innerHTML =
       '<li class="idea"><p></p><p>No Gift Ideas for selected person.</p></li>'; //clear in case there are no records to shows
   }
-  //add listener for 'change' or 'input' event on EVERY checkbox '.idea [type="checkbox"]'
-  // which will call a function to update the `bought` value for the document
+
 }
+
+
+
+
 
 async function savePerson() {
   //take the information from the dialog, save as an object, push to firestore
@@ -316,7 +314,7 @@ async function saveIdea() {
   };
 
   try {
-    const docRef = await addDoc(collection(db, "gift-ideas"), idea);
+    const docRef = await addDoc(collection(db, "giift-ideas"), idea);
     console.log("Document written with ID: ", docRef.id);
     idea.id = docRef.id;
     //1. clear the form fields
