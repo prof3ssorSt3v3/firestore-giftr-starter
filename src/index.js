@@ -306,7 +306,7 @@ async function saveIdea() {
   let location = document.getElementById("location").value;
   if (!title || !location) return; //form needs more info
   //a new idea needs a reference to the person
-  const personRef = doc(db, `/people/${selectedPersonId}`);
+  const personRef = doc(db, `/people/${personId}`);
   const idea = {
     title,
     location,
