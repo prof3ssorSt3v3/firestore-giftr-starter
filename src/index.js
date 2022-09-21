@@ -16,6 +16,7 @@ const app = initializeApp(firebaseConfig);
 // get a reference to the database
 const db = getFirestore(app);
 const people = [];
+const ideas = [];
 let selectedPersonId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -46,6 +47,8 @@ document.addEventListener('DOMContentLoaded', () => {
 function loadData(){
   getPeople();
 }
+
+/* CODE FOR PEOPLE */
 
 async function getPeople(){
   //call this from DOMContentLoaded init function 
@@ -151,6 +154,7 @@ function handleSelectPerson(ev){
       li.classList.add('selected');
       //and load all the gift idea documents for that person
       getIdeas(id);
+      ideas.length = 0;
     }
   }else{
     //clicked a button not inside <li class="person">
@@ -159,26 +163,32 @@ function handleSelectPerson(ev){
   }
 }
 
+/* CODE FOR IDEAS */
+
 async function getIdeas(id){
   //the person-id property in gift-ideas will be like `/people/lasdjkflaskdfjsdlfk`
   //and it is a REFERENCE not a string. So, we use a reference to the person object
   const personRef = doc(collection(db, 'people'), id);
-  const ideaCollectionRef = collection(db, "gift-ideas"); //collection we want to query
+  // const ideaCollectionRef = collection(db, "gift-ideas"); //collection we want to query
+  // const docs = query(
+  //   ideaCollectionRef,
+  //   where('person-id', '==', personRef),
+  // );
+  //then run a query where the `person-id` property matches the reference for the person
   const docs = query(
-    ideaCollectionRef,
+    collection(db, 'gift-ideas'),
     where('person-id', '==', personRef),
-    orderBy('birth-month')
+    // orderBy('birth-month')
   );
   const querySnapshot = await getDocs(docs);
-  const ideas = [];
-  querySnapshot.forEach((doc) => {
+  querySnapshot.forEach((docs) => {
     //every `doc` object has a `id` property that holds the `_id` value from Firestore.
     //every `doc` object has a doc() method that gives you a JS object with all the properties
-    const data = doc.data();
-    const id = doc.id;
+    const data = docs.data();
+    const id = docs.id;
     //person_id is a reference type
     //we want the actual id string in our object use id to get the _id
-    // console.log(data['person-id']);
+    console.log(data['person-id']);
     ideas.push({id, 
       title: data.title,
       location: data.location,
@@ -195,14 +205,13 @@ async function getIdeas(id){
 function buildIdeas(ideas){
   const ul = document.querySelector('.idea-list');
   if(ideas.length){
-    ul.innerHTML = ideas.map(idea=>{
-      // console.log(`show ${idea.id}`);
-      return `<li class="idea" data-id="${idea.id}">
-                <label for="chk-${idea.id}"
-                  ><input type="checkbox" id="chk-${idea.id}" /> Bought</label
+    ul.innerHTML = ideas.map(ideas=>{
+      return `<li class="idea" data-id="${ideas.id}">
+                <label for="chk-${ideas.id}"
+                  ><input type="checkbox" id="chk-${ideas.id}" /> Bought</label
                 >
-                <p class="title">${idea.title}</p>
-                <p class="location">${idea.location}</p>
+                <p class="title">${ideas.title}</p>
+                <p class="location">${ideas.location}</p>
               </li>`;
     }).join('');
   }else{
@@ -210,6 +219,7 @@ function buildIdeas(ideas){
   }
   //add listener for 'change' or 'input' event on EVERY checkbox '.idea [type="checkbox"]'
   // which will call a function to update the `bought` value for the document
+  console.log(ideas.length);
 }
 
 async function saveIdea() {
@@ -246,6 +256,8 @@ async function saveIdea() {
   }
   //TODO: update this function to work as an UPDATE method too
 }
+
+/* CODE FOR OVERLAY */
 
 function hideOverlay(ev) {
   ev.preventDefault();
