@@ -60,8 +60,6 @@ document.addEventListener("DOMContentLoaded", () => {
 		.getElementById("btnAddPerson")
 		.addEventListener("click", showOverlay);
 
-	document.getElementById("btnAddIdea").addEventListener("click", showOverlay);
-
 	document
 		.getElementById("btnSavePerson")
 		.addEventListener("click", savePerson);
@@ -91,6 +89,19 @@ const peopleChange = onSnapshot(
 			people.push({ id, ...data });
 		});
 		buildPeople(people);
+
+		//disabling Add IDea button when there's no people
+		if (!people.length == 0) {
+			document
+				.getElementById("btnAddIdea")
+				.addEventListener("click", showOverlay);
+			document.getElementById("btnAddIdea").classList.remove("disabled");
+		} else {
+			document
+				.getElementById("btnAddIdea")
+				.removeEventListener("click", showOverlay);
+			document.getElementById("btnAddIdea").classList.add("disabled");
+		}
 	},
 	(err) => {
 		//error handler
