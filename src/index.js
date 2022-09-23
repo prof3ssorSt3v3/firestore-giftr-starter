@@ -279,3 +279,39 @@ async function saveIdea() {
     }
   }
 }
+
+async function handleSelectIdea(ev) {
+  const li = ev.target.closest(".idea");
+  const id = li ? li.getAttribute("data-id") : null;
+  ideaId = id;
+  if (ev.target.classList.contains("edit")) {
+    document.querySelector(".overlay").classList.add("active");
+    document.getElementById("dlgIdea").classList.add("active");
+    const docRef = doc(db, "gift-ideas", id);
+    const docSnapshot = await getDoc(docRef);
+    const data = docSnapshot.data();
+    let title = document.getElementById("title");
+    title.value = data["idea"];
+    let location = document.getElementById("location");
+    location.value = data["location"];
+    document.getElementById("btnSaveIdea").setAttribute("data-id", id);
+    console.log("Person ID", personId);
+    console.log("Idea ID", id);
+  } else if (ev.target.closest(".delete")) {
+    console.log("To delete: ", id);
+    document.querySelector(".overlay").classList.add("active");
+    document.getElementById("deleteIdea").classList.add("active");
+    document.getElementById("btnYes").setAttribute("data-id", id);
+  } else {
+    let checkBox = document.getElementById(`chk-${id}`);
+    checkBox.addEventListener("change", () => {
+      if (checkBox.checked) {
+        checkBox.setAttribute("checked", true);
+        toggleBought("Checked", id);
+      } else {
+        checkBox.removeAttribute("checked");
+        toggleBought("Unchecked", id);
+      }
+    });
+  }
+}
