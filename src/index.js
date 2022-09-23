@@ -1,9 +1,9 @@
 /**.
- * assignment steps:
+ * pre project steps: 
  * creating own firebase project, app and database.
  * insertion of config object into the js file
- * the devinit branch has samples of how to READ all data and CREATE new data in the database.
- * functions of firebase project:
+ * 
+ * FUNCTIONALITY: 
  * 1. READS a list of people from the data, displays their names, birhtdays and months
  * 2. first person automatically selected and the gifts of person is displayed
  * 3. clicking on a person list item READS all gift ideas from that person and displays
@@ -17,7 +17,7 @@
  * 10. the delete button should delelte from database and UI
  * 11. each item should have a functional edit button
  * 12. toggling checkbox for gift should do an update in DB
- * 13. github pages
+ * 13. FINAL, host on github pages
  *
  *
  *
@@ -199,10 +199,14 @@ function showPerson(person) {
 
 function handleSelectPerson(ev) {
   const li = ev.target.closest(".person"); 
+  li.click();
+  console.log("testing user clicked on element");
   const id = li ? li.getAttribute("data-id") : null; 
 
   if (id) {
     personId = id;
+ 
+    let docRef = doc(collection(db, "people"), personId);
     if (ev.target.classList.contains("edit")) {
     } else if (ev.target.classList.contains("delete")) {
 
@@ -219,8 +223,8 @@ function handleSelectPerson(ev) {
 
 
 async function getIdeas(id) {
-  const personRef = doc(collection(db, "people"), id);
-  const ideaCollectionRef = collection(db, "giift-ideas"); 
+  const personRef = doc(collection(db, "people"), id); //get reference for people
+  const ideaCollectionRef = collection(db, "giift-ideas"); //get reference for gift teams
   const docs = query(ideaCollectionRef,where("person-id", "==", personRef));
   const querySnapshot = await getDocs(docs);
   const ideas = [];
@@ -231,7 +235,7 @@ async function getIdeas(id) {
    // console.log(data['person-id']);
     ideas.push({
       id,
-      title: data.title,
+      title: data.idea,
       location: data.location,
       bought: data.bought,
       person_id: data["person-id"].id,
@@ -262,7 +266,32 @@ function buildIdeas(ideas) {
   }
 
 }
+async function saveIdea() {
+  let title = document.getElementById("title").value;
+  let location = document.getElementById("location").value;
+  if (!title || !location) return; 
+  const personRef = doc(db, `/people/${personId}`);
+  const idea = {
+    title,
+    location,
+    "person-id": personRef,
+  };
 
+  try {
+    const docRef = await addDoc(collection(db, "giift-ideas"), idea);
+    console.log("Document written with ID: ", docRef.id);
+    idea.id = docRef.id;
+ 
+    document.getElementById("title").value = "";
+    document.getElementById("location").value = "";
+    document.querySelector(".overlay").click();
+    getIdeas(personId);
+  } catch (err) {
+    console.error("Error adding document: ", err);
+
+  }
+  
+}
 
 
 
@@ -281,63 +310,23 @@ async function savePerson() {
   try {
     const docRef = await addDoc(collection(db, "people"), person);
     console.log("Document written with ID: ", docRef.id);
-    //1. clear the form fields
     document.getElementById("name").value = "";
     document.getElementById("month").value = "";
     document.getElementById("day").value = "";
-    //2. hide the dialog and the overlay by clicking on overlay
     document.querySelector(".overlay").click();
-    //3. TODO: display a message to the user about success
 
     person.id = docRef.id;
-    //4. ADD the new HTML to the <ul> using the new object
     showPerson(person);
   } catch (err) {
     console.error("Error adding document: ", err);
-    //do you want to stay on the dialog?
-    //display a mesage to the user about the problem
   }
-  //TODO: update this function to work as an UPDATE method too
-}
-
-async function saveIdea() {
-  //take the information from the dialog, save as an object, push to firestore
-  let title = document.getElementById("title").value;
-  let location = document.getElementById("location").value;
-  if (!title || !location) return; //form needs more info
-  //a new idea needs a reference to the person
-  const personRef = doc(db, `/people/${personId}`);
-  const idea = {
-    title,
-    location,
-    "person-id": personRef,
-  };
-
-  try {
-    const docRef = await addDoc(collection(db, "giift-ideas"), idea);
-    console.log("Document written with ID: ", docRef.id);
-    idea.id = docRef.id;
-    //1. clear the form fields
-    document.getElementById("title").value = "";
-    document.getElementById("location").value = "";
-    //2. hide the dialog and the overlay by clicking on overlay
-    document.querySelector(".overlay").click();
-    //3. TODO: display a message to the user about success
-
-    //4. ADD the new HTML to the <ul> using the new object
-    //just recall the method to show all ideas for the selected person
-    getIdeas(personId);
-  } catch (err) {
-    console.error("Error adding document: ", err);
-    //do you want to stay on the dialog?
-    //display a mesage to the user about the problem
-  }
-  //TODO: update this function to work as an UPDATE method too
+  
 }
 
 
 
-//when user clicks on delete for either person or gift function 
+
 async function deleteSection(){
 
+  //deleteDoc(docRef)
 }
