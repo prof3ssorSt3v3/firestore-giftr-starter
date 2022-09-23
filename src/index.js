@@ -1,5 +1,6 @@
+import { async } from '@firebase/util';
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, query, where, doc, getDocs, getDoc, addDoc, setDoc, orderBy, onSnapshot } from 'firebase/firestore';
+import { getFirestore, collection, query, where, doc, getDocs, getDoc, addDoc, setDoc, orderBy, onSnapshot, deleteDoc, updateDoc } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCtjyPJ7LqQUQZgiy1uxYcTPAj_p6zE4WM",
@@ -158,7 +159,7 @@ function handleSelectPerson(ev){
       document.getElementById('deletePerson').classList.add('active');
       //DELETE the doc using the id to get a docRef
       //do a confirmation before deleting 
-      document.getElementById('btnDelete').addEventListener('click', deletePerson);
+      document.getElementById('btnDelete').addEventListener('click', deleteIt);
       document.getElementById('btnCancel').addEventListener('click', cancelPerson);
     }else{
       //content inside the <li> but NOT a <button> was clicked 
@@ -177,11 +178,29 @@ function handleSelectPerson(ev){
   }
 }
 
-function saveIt() {
+function saveIt(ev) {
+  ev.preventDefault()
+  const editPpl = doc(db, 'people', selectedPersonId);
+  // const edited = document.querySelector('.edit');
+  updateDoc(editPpl, {
+    name: document.getElementById("nameEdit").value,
+    day: document.getElementById("dayEdit").value,
+    month: document.getElementById("monthEdit").value
+  })
   hideOverlayPpl();
 }
 
-function deletePerson (){
+function deleteIt(ev){
+  ev.preventDefault()
+  // let ppl = ev.target.closest('.person');
+  // let id = ppl.getAttribute('data-id');
+  let id = selectedPersonId;
+  console.log(id);
+  const deletePpl = doc(db, 'people', id)
+  deleteDoc(deletePpl)
+    .then(() =>{
+      // people.reset();
+    })
   hideOverlayPpl();
 };
 

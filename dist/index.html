@@ -109,7 +109,7 @@
           <label for="name">Name:</label>
           <input
             type="text"
-            id="name"
+            id="nameEdit"
             name="name"
             placeholder="person's name"
           />
@@ -118,7 +118,7 @@
           <label for="month">Birth Month:</label>
           <input
             type="number"
-            id="month"
+            id="monthEdit"
             name="month"
             min="1"
             max="12"
@@ -127,7 +127,7 @@
         </p>
         <p>
           <label for="day">Birth Day:</label>
-          <input type="number" id="day" name="day" min="1" max="31" value="1" />
+          <input type="number" id="dayEdit" name="day" min="1" max="31" value="1" />
         </p>
         <p>
           <button id="btnCancel">Cancel</button>
@@ -136,7 +136,40 @@
       </dialog>
       <dialog class="delete" id="deletePerson">
         <h2>Delete Person</h2>
-        <p>Do you want to delete name.</p>
+        <p>Do you want to delete this person?</p>
+        <button id="btnCancel">Cancel</button>
+        <button id="btnDelete">Delete</button>
+      </dialog>
+    </section>
+    <section class="overlayIdea">
+      <dialog class="edit" id="editIdea">
+        <h2>Save Gift Idea</h2>
+        <p>
+          <label for="title">Title:</label>
+          <input
+            type="text"
+            id="titleEdit"
+            name="title"
+            placeholder="describe the gift"
+          />
+        </p>
+        <p>
+          <label for="location">Location:</label>
+          <input
+            type="text"
+            id="locationEdit"
+            name="location"
+            placeholder="store or website"
+          />
+        </p>
+        <p>
+          <button id="btnCancelIdea">Cancel</button>
+          <button id="btnSaveIdea">Save</button>
+        </p>
+      </dialog>
+      <dialog class="delete" id="deletePerson">
+        <h2>Delete Gift Idea</h2>
+        <p>Do you want to delete this gift idea?</p>
         <button id="btnCancel">Cancel</button>
         <button id="btnDelete">Delete</button>
       </dialog>
