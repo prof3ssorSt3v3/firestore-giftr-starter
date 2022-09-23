@@ -18,7 +18,7 @@ html {
 }
 body {
   min-height: 100vh;
-  background-color: #425657;
+  background-color: #F0EBE3;
 }
 header,
 main {
@@ -47,6 +47,7 @@ main {
   align-items: flex-start;
 }
 main > section {
+  padding-right: 1rem;
   flex-basis: 50%;
   flex-grow: 1;
   flex-shrink: 1;
@@ -58,16 +59,16 @@ section.ideas {
 }
 section h2 {
   font-size: 2rem;
-  color: #fcd116;
+  color: #003B4A;
   display: flex;
   justify-content: space-between;
 }
 section h2 > button {
   margin-right: 4rem;
   padding: 0.1rem 2rem;
-  border: 1px;
-  background-color: #f3f3f3;
-  color: var(--dark-orange);
+  border: 2px solid #003B4A;
+  background-color: #fff;
+  color: #003B4A;
   border-radius: var(--radii);
   cursor: pointer;
   -webkit-border-radius: var(--radii);
@@ -106,7 +107,7 @@ ul {
 }
 
 .idea-list li.idea {
-  border: 1px solid #222;
+  border: none;
   border-radius: var(--radii);
   margin: 1rem 0;
   display: grid;
@@ -116,7 +117,7 @@ ul {
   grid-template-areas: 
   'tab top' 'tab bottom';
   grid-template-columns: 1fr 3fr 1fr;
-  background-color: var(--very-light-orange);
+  background-color: #FCCE03;
   -webkit-border-radius: var(--radii);
   -moz-border-radius: var(--radii);
   -ms-border-radius: var(--radii);
@@ -222,5 +223,5 @@ dialog button {
 .edit, .delete {
   background-color: #f2f2f2;
   border: 1px solid black;
-  padding: 0.2 rem;
+  padding: 0.15rem;
 }
