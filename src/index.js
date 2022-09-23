@@ -157,3 +157,46 @@ function buildIdeas(ideas) {
     ul.innerHTML = '<li class="idea"><p></p><p>No gift ideas.</p></li>';
   }
 }
+
+async function savePerson() {
+  let selectedId = document
+    .getElementById("btnSavePerson")
+    .getAttribute("data-id");
+  let name = document.getElementById("name").value;
+  let month = document.getElementById("month").value;
+  let day = document.getElementById("day").value;
+  if (!name || !month || !day) return;
+  const person = {
+    name,
+    "birth-month": month,
+    "birth-day": day,
+  };
+  if (selectedId) {
+    try {
+      await setDoc(doc(db, "people", selectedId), person);
+      console.log("Document updated for person with ID: ", selectedId);
+      document.getElementById("name").value = "";
+      document.getElementById("month").value = "";
+      document.getElementById("day").value = "";
+      document.querySelector(".overlay").click();
+      document.getElementById("btnSavePerson").removeAttribute("data-id");
+      alert(`Document is updated.`);
+    } catch (err) {
+      console.error("Error updating document: ", err);
+      alert("Error updating the document.");
+    }
+  } else {
+    try {
+      const docRef = await addDoc(collection(db, "people"), person);
+      console.log("Document written with ID: ", docRef.id);
+      document.getElementById("name").value = "";
+      document.getElementById("month").value = "";
+      document.getElementById("day").value = "";
+      document.querySelector(".overlay").click();
+      alert(`${name} has been added to the database.`);
+    } catch (err) {
+      console.error("Error adding document: ", err);
+      alert("Error adding to the database.");
+    }
+  }
+}
