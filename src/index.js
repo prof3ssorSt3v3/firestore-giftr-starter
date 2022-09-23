@@ -200,3 +200,33 @@ async function savePerson() {
     }
   }
 }
+
+async function handleSelectPerson(ev) {
+  const li = ev.target.closest(".person");
+  const id = li ? li.getAttribute("data-id") : null;
+  if (ev.target.classList.contains("edit")) {
+    console.log(id);
+    document.querySelector(".overlay").classList.add("active");
+    document.getElementById("dlgPerson").classList.add("active");
+    const docRef = doc(db, "people", id);
+    const docSnapshot = await getDoc(docRef);
+    const data = docSnapshot.data();
+    let name = document.getElementById("name");
+    name.value = data["name"];
+    let month = document.getElementById("month");
+    month.value = data["birth-month"];
+    let day = document.getElementById("day");
+    day.value = data["birth-day"];
+    document.getElementById("btnSavePerson").setAttribute("data-id", id);
+  } else if (ev.target.closest(".delete")) {
+    console.log(id);
+    document.querySelector(".overlay").classList.add("active");
+    document.getElementById("deletePerson").classList.add("active");
+    document.getElementById("btnYes").setAttribute("data-id", id);
+  } else {
+    document.querySelector("li.selected")?.classList.remove("selected");
+    li.classList.add("selected");
+    personId = id;
+    getIdeas(id);
+  }
+}
