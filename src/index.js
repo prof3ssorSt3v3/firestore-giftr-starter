@@ -84,3 +84,39 @@ document.addEventListener("DOMContentLoaded", () => {
     buildIdeas(ideas);
   });
 });
+
+async function getPeople() {
+  const query = await getDocs(collection(db, "people"));
+  query.forEach((doc) => {
+    const data = doc.data();
+    const id = doc.id;
+    people.push({ id, ...data });
+  });
+  buildPeople(people);
+}
+
+function buildPeople(people) {
+  const ul = document.querySelector("ul.person-list");
+  if (people.length) {
+    ul.innerHTML = people
+      .map((person) => {
+        const dob = `${months[person["birth-month"] - 1]} ${
+          person["birth-day"]
+        }`;
+        return `<li data-id="${person.id}" class="person">
+                <p class="name">${person.name}</p>
+                <p class="dob">${dob}</p>
+                <button class="edit">Edit</button>
+                <button class="delete">Delete</button>
+                </li>`;
+      })
+      .join("");
+    ul.children[0].classList.add("selected");
+  } else {
+    ul.innerHTML =
+      '<li class="idea"><p></p><p>People collection is empty.</p></li>';
+  }
+  let id = people[0].id;
+  personId = id;
+  getIdeas(id);
+}
