@@ -230,3 +230,11 @@ async function handleSelectPerson(ev) {
     getIdeas(id);
   }
 }
+
+async function deletePerson() {
+  let selectedId = document.getElementById("btnYes").getAttribute("data-id");
+  const docRef = doc(db, "people", selectedId);
+  await deleteDoc(docRef);
+  document.querySelector(".overlay").click();
+  alert("Document has been deleted.");
+}
