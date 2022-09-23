@@ -315,3 +315,13 @@ async function handleSelectIdea(ev) {
     });
   }
 }
+
+async function deleteIdea() {
+  let selectedId = document.getElementById("btnYes").getAttribute("data-id");
+  console.log(selectedId);
+  const docRef = doc(db, "gift-ideas", selectedId);
+  await deleteDoc(docRef);
+  document.querySelector(".overlay").click();
+  alert("Document has been deleted.");
+  getIdeas(personId);
+}
