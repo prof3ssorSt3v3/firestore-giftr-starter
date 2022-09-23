@@ -19,6 +19,7 @@ const db = getFirestore(app);
 const people = [];
 const ideas = [];
 let selectedPersonId = null;
+let selectedIdeaId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   //set up the dom events
@@ -41,7 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnSaveIdea').addEventListener('click', saveIdea);
 
   document.querySelector('.person-list').addEventListener('click', handleSelectPerson);
-
+  document.querySelector('.idea-list').addEventListener('click', handleSelectIdea);
+  // handleSelectIdea();
   loadData();
 });
 
@@ -145,22 +147,23 @@ function handleSelectPerson(ev){
     selectedPersonId = id;
     //did they click the li content OR an edit button OR a delete button?
     if(ev.target.classList.contains('edit')){
-      //EDIT the doc using the id to get a docRef
       ev.preventDefault();
       document.querySelector('.overlayPpl').classList.add('active');
       document.getElementById('editPerson').classList.add('active');
-      //show the dialog form to EDIT the doc (same form as ADD)
-      //Load all the Person document details into the form from docRef
+      
       document.getElementById('btnSave').addEventListener('click', saveIt);
-      document.getElementById('btnCancel').addEventListener('click', cancelPerson);
+      document.getElementById('btnCancel').addEventListener('click',  function(ev){
+        hideOverlayPpl();
+      });
     }else if(ev.target.classList.contains('delete')){
       ev.preventDefault();
       document.querySelector('.overlayPpl').classList.add('active');
       document.getElementById('deletePerson').classList.add('active');
-      //DELETE the doc using the id to get a docRef
-      //do a confirmation before deleting 
+      
       document.getElementById('btnDelete').addEventListener('click', deleteIt);
-      document.getElementById('btnCancel').addEventListener('click', cancelPerson);
+      document.getElementById('btnCancel2').addEventListener('click', function(ev){
+        hideOverlayPpl();
+      });
     }else{
       //content inside the <li> but NOT a <button> was clicked 
       //remove any previously selected styles
@@ -203,10 +206,6 @@ function deleteIt(ev){
     })
   hideOverlayPpl();
 };
-
-function cancelPerson(){
-  hideOverlayPpl();
-}
 
 function hideOverlayPpl(){
   document.querySelector('.overlayPpl').classList.remove('active');
@@ -264,6 +263,8 @@ function buildIdeas(ideas){
                 >
                 <p class="title">${ideas.title}</p>
                 <p class="location">${ideas.location}</p>
+                <button class="editIdea"> Edit </button>
+                <button class="deleteIdea"> Delete </button>
               </li>`;
     }).join('');
   }else{
@@ -307,6 +308,75 @@ async function saveIdea() {
     //display a mesage to the user about the problem
   }
   //TODO: update this function to work as an UPDATE method too
+}
+function handleSelectIdea(ev){
+  const li = ev.target.closest('.idea');
+  const id = li ? li.getAttribute('data-id') : null;
+  
+  if(id){
+    //user clicked inside li
+    selectedPersonId = id;
+    //did they click the li content OR an edit button OR a delete button?
+    if(ev.target.classList.contains('editIdea')){
+      //EDIT the doc using the id to get a docRef
+      ev.preventDefault();
+      document.querySelector('.overlayIdea').classList.add('active');
+      document.getElementById('editIdea').classList.add('active');
+      //show the dialog form to EDIT the doc (same form as ADD)
+      //Load all the Person document details into the form from docRef
+      document.getElementById('btnSaveIdeas').addEventListener('click', saveGiftIdea);
+      document.getElementById('btnCancelIdeas').addEventListener('click', function(ev){
+        hideOverlayIdea();
+      });
+    }else if(ev.target.classList.contains('deleteIdea')){
+      ev.preventDefault();
+      document.querySelector('.overlayIdea').classList.add('active');
+      document.getElementById('deleteIdea').classList.add('active');
+      //DELETE the doc using the id to get a docRef
+      //do a confirmation before deleting 
+      document.getElementById('btnDeleteIdeas').addEventListener('click', deleteIdea);
+      document.getElementById('btnCancelIdeas2').addEventListener('click', function(ev){
+        hideOverlayIdea();
+      });
+  }else{
+    //clicked a button not inside <li class="person">
+    //Show the dialog form to ADD the doc (same form as EDIT)
+    //showOverlay function can be called from here or with the click listener in DOMContentLoaded, not both
+  }
+}
+}
+
+function saveGiftIdea(ev) {
+  ev.preventDefault()
+  const editIdea = doc(db, 'ideas', selectedIdeaId);
+  // const edited = document.querySelector('.edit');
+  updateDoc(editIdea, {
+    title: document.getElementById("titleEdit").value,
+    location: document.getElementById("locationEdit").value
+  })
+  hideOverlayIdea();
+}
+
+function deleteIdea(ev){
+  ev.preventDefault()
+  let id = ev.target.dataset.id
+  console.log(id);
+  const deletePpl = doc(db, 'ideas', id)
+  deleteDoc(deletePpl)
+    .then(() =>{
+    })
+  hideOverlayIdea();
+};
+
+function cancelIdea(){
+  hideOverlayIdea();
+}
+
+function hideOverlayIdea(){
+  document.querySelector('.overlayIdea').classList.remove('active');
+  document
+    .querySelectorAll('.overlayIdea dialog')
+    .forEach((dialog) => dialog.classList.remove('active'));
 }
 
 /* CODE FOR OVERLAY */
