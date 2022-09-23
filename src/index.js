@@ -238,3 +238,44 @@ async function deletePerson() {
   document.querySelector(".overlay").click();
   alert("Document has been deleted.");
 }
+
+async function saveIdea() {
+  let ideaId = document.getElementById("btnSaveIdea").getAttribute("data-id");
+  let idea = document.getElementById("title").value;
+  let location = document.getElementById("location").value;
+  if (!idea || !location) return;
+  const personRef = doc(db, `/people/${personId}`);
+  const giftIdea = {
+    idea,
+    location,
+    "person-id": personRef,
+  };
+  if (ideaId) {
+    try {
+      await setDoc(doc(db, "gift-ideas", ideaId), giftIdea);
+      console.log("Idea updated in the database.");
+      document.getElementById("title").value = "";
+      document.getElementById("location").value = "";
+      document.querySelector(".overlay").click();
+      alert("Gift idea has been updated to the database.");
+      document.getElementById("btnSaveIdea").removeAttribute("data-id");
+      getIdeas(personId);
+    } catch (err) {
+      console.error("Error updating document: ", err);
+      alert("Error updating the document.");
+    }
+  } else {
+    try {
+      const docRef = await addDoc(collection(db, "gift-ideas"), giftIdea);
+      console.log("Document written with ID: ", docRef.id);
+      document.getElementById("title").value = "";
+      document.getElementById("location").value = "";
+      document.querySelector(".overlay").click();
+      alert("Gift idea has been added to the database.");
+      getIdeas(personId);
+    } catch (err) {
+      console.error("Error adding document: ", err);
+      alert("Error adding idea to the database.");
+    }
+  }
+}
