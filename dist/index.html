@@ -102,5 +102,44 @@
         </p>
       </dialog>
     </section>
+    <section class="overlayPpl">
+      <dialog class="edit" id="editPerson">
+        <h2>Edit Person</h2>
+        <p>
+          <label for="name">Name:</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            placeholder="person's name"
+          />
+        </p>
+        <p>
+          <label for="month">Birth Month:</label>
+          <input
+            type="number"
+            id="month"
+            name="month"
+            min="1"
+            max="12"
+            value="1"
+          />
+        </p>
+        <p>
+          <label for="day">Birth Day:</label>
+          <input type="number" id="day" name="day" min="1" max="31" value="1" />
+        </p>
+        <p>
+          <button id="btnCancel">Cancel</button>
+          <button id="btnSave">Save</button>
+        </p>
+      </dialog>
+      <dialog class="delete" id="deletePerson">
+        <h2>Delete Person</h2>
+        <p>Do you want to delete name.</p>
+        <button id="btnCancel">Cancel</button>
+        <button id="btnDelete">Delete</button>
+      </dialog>
+    </section>
   </body>
 </html>

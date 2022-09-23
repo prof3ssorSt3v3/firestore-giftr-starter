@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, query, where, doc, getDocs, getDoc, addDoc, setDoc, orderBy } from 'firebase/firestore';
+import { getFirestore, collection, query, where, doc, getDocs, getDoc, addDoc, setDoc, orderBy, onSnapshot } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCtjyPJ7LqQUQZgiy1uxYcTPAj_p6zE4WM",
@@ -78,6 +78,8 @@ function buildPeople(people){
     return `<li data-id="${person.id}" class="person">
             <p class="name">${person.name}</p>
             <p class="dob">${dob}</p>
+            <button class="edit"> Edit </button>
+            <button class="delete"> Delete </button>
           </li>`;
   }).join('');
 
@@ -124,6 +126,8 @@ function showPerson(person){
   ul.innerHTML += `<li data-id="${person.id}" class="person">
     <p class="name">${person.name}</p>
     <p class="dob">${dob}</p>
+    <button class="edit"> Edit </button>
+    <button class="delete"> Delete </button>
   </li>`;
   //add to people array
   people.push(person);
@@ -141,11 +145,21 @@ function handleSelectPerson(ev){
     //did they click the li content OR an edit button OR a delete button?
     if(ev.target.classList.contains('edit')){
       //EDIT the doc using the id to get a docRef
+      ev.preventDefault();
+      document.querySelector('.overlayPpl').classList.add('active');
+      document.getElementById('editPerson').classList.add('active');
       //show the dialog form to EDIT the doc (same form as ADD)
       //Load all the Person document details into the form from docRef
+      document.getElementById('btnSave').addEventListener('click', saveIt);
+      document.getElementById('btnCancel').addEventListener('click', cancelPerson);
     }else if(ev.target.classList.contains('delete')){
+      ev.preventDefault();
+      document.querySelector('.overlayPpl').classList.add('active');
+      document.getElementById('deletePerson').classList.add('active');
       //DELETE the doc using the id to get a docRef
       //do a confirmation before deleting 
+      document.getElementById('btnDelete').addEventListener('click', deletePerson);
+      document.getElementById('btnCancel').addEventListener('click', cancelPerson);
     }else{
       //content inside the <li> but NOT a <button> was clicked 
       //remove any previously selected styles
@@ -161,6 +175,25 @@ function handleSelectPerson(ev){
     //Show the dialog form to ADD the doc (same form as EDIT)
     //showOverlay function can be called from here or with the click listener in DOMContentLoaded, not both
   }
+}
+
+function saveIt() {
+  hideOverlayPpl();
+}
+
+function deletePerson (){
+  hideOverlayPpl();
+};
+
+function cancelPerson(){
+  hideOverlayPpl();
+}
+
+function hideOverlayPpl(){
+  document.querySelector('.overlayPpl').classList.remove('active');
+  document
+    .querySelectorAll('.overlayPpl dialog')
+    .forEach((dialog) => dialog.classList.remove('active'));
 }
 
 /* CODE FOR IDEAS */
@@ -219,7 +252,7 @@ function buildIdeas(ideas){
   }
   //add listener for 'change' or 'input' event on EVERY checkbox '.idea [type="checkbox"]'
   // which will call a function to update the `bought` value for the document
-  console.log(ideas.length);
+  // console.log(ideas.length);
 }
 
 async function saveIdea() {
