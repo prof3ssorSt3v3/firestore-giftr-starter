@@ -120,3 +120,40 @@ function buildPeople(people) {
   personId = id;
   getIdeas(id);
 }
+
+async function getIdeas(id) {
+  const personRef = doc(collection(db, "people"), id);
+  const docs = query(
+    collection(db, "gift-ideas"),
+    where("person-id", "==", personRef)
+  );
+  const querySnapshot = await getDocs(docs);
+  const ideas = [];
+  querySnapshot.forEach((doc) => {
+    const data = doc.data();
+    const id = doc.id;
+    ideas.push({ id, ...data });
+  });
+  console.log(ideas);
+  buildIdeas(ideas);
+}
+
+function buildIdeas(ideas) {
+  const ul = document.querySelector("ul.idea-list");
+  if (ideas.length) {
+    ul.innerHTML = ideas
+      .map((idea) => {
+        return `<li class="idea" data-id="${idea.id}">
+                <label for="chk-${idea.id}">
+                <input type="checkbox" id="chk-${idea.id}" /> Bought</label>
+                <p class="title">${idea.idea}</p>
+                <p class="location">${idea.location}</p>
+                <button class="edit">Edit</button>
+                <button class="delete">Delete</button>
+              </li>`;
+      })
+      .join("");
+  } else {
+    ul.innerHTML = '<li class="idea"><p></p><p>No gift ideas.</p></li>';
+  }
+}
