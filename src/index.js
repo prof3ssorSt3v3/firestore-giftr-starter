@@ -178,9 +178,8 @@ async function savePerson() {
       document.getElementById("name").value = "";
       document.getElementById("month").value = "";
       document.getElementById("day").value = "";
-      document.querySelector(".overlay").click();
+      document.getElementById("updateAlert").classList.add("active");
       document.getElementById("btnSavePerson").removeAttribute("data-id");
-      alert(`Document is updated.`);
     } catch (err) {
       console.error("Error updating document: ", err);
       alert("Error updating the document.");
@@ -192,8 +191,7 @@ async function savePerson() {
       document.getElementById("name").value = "";
       document.getElementById("month").value = "";
       document.getElementById("day").value = "";
-      document.querySelector(".overlay").click();
-      alert(`${name} has been added to the database.`);
+      document.getElementById("addAlert").classList.add("active");
     } catch (err) {
       console.error("Error adding document: ", err);
       alert("Error adding to the database.");
@@ -235,8 +233,7 @@ async function deletePerson() {
   let selectedId = document.getElementById("btnYes").getAttribute("data-id");
   const docRef = doc(db, "people", selectedId);
   await deleteDoc(docRef);
-  document.querySelector(".overlay").click();
-  alert("Document has been deleted.");
+  document.getElementById("deleteAlert").classList.add("active");
 }
 
 async function saveIdea() {
@@ -256,8 +253,7 @@ async function saveIdea() {
       console.log("Idea updated in the database.");
       document.getElementById("title").value = "";
       document.getElementById("location").value = "";
-      document.querySelector(".overlay").click();
-      alert("Gift idea has been updated to the database.");
+      document.getElementById("updateAlert").classList.add("active");
       document.getElementById("btnSaveIdea").removeAttribute("data-id");
       getIdeas(personId);
     } catch (err) {
@@ -270,8 +266,7 @@ async function saveIdea() {
       console.log("Document written with ID: ", docRef.id);
       document.getElementById("title").value = "";
       document.getElementById("location").value = "";
-      document.querySelector(".overlay").click();
-      alert("Gift idea has been added to the database.");
+      document.getElementById("addAlert").classList.add("active");
       getIdeas(personId);
     } catch (err) {
       console.error("Error adding document: ", err);
@@ -321,8 +316,7 @@ async function deleteIdea() {
   console.log(selectedId);
   const docRef = doc(db, "gift-ideas", selectedId);
   await deleteDoc(docRef);
-  document.querySelector(".overlay").click();
-  alert("Document has been deleted.");
+  document.getElementById("deleteAlert").classList.add("active");
   getIdeas(personId);
 }
 
