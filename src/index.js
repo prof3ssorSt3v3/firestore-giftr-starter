@@ -325,3 +325,46 @@ async function deleteIdea() {
   alert("Document has been deleted.");
   getIdeas(personId);
 }
+
+async function toggleBought(state, id) {
+  if (state == "Checked") {
+    try {
+      await updateDoc(doc(db, "gift-ideas", id), { bought: true });
+    } catch (err) {
+      console.error("Error updating document: ", err);
+    }
+  } else {
+    try {
+      await updateDoc(doc(db, "gift-ideas", id), { bought: false });
+    } catch (err) {
+      console.error("Error updating document: ", err);
+    }
+  }
+}
+
+function hideOverlay(ev) {
+  ev.preventDefault();
+  if (
+    !ev.target.classList.contains("overlay") &&
+    ev.target.id != "btnCancelIdea" &&
+    ev.target.id != "btnCancelPerson" &&
+    ev.target.id != "btnCancel"
+  )
+    return;
+  document.getElementById("name").value = "";
+  document.getElementById("month").value = "";
+  document.getElementById("day").value = "";
+  document.getElementById("title").value = "";
+  document.getElementById("location").value = "";
+
+  document.querySelector(".overlay").classList.remove("active");
+  document
+    .querySelectorAll(".overlay dialog")
+    .forEach((dialog) => dialog.classList.remove("active"));
+}
+function showOverlay(ev) {
+  ev.preventDefault();
+  document.querySelector(".overlay").classList.add("active");
+  const id = ev.target.id === "btnAddPerson" ? "dlgPerson" : "dlgIdea";
+  document.getElementById(id).classList.add("active");
+}
