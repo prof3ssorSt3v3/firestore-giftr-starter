@@ -200,20 +200,13 @@ function handleSelectPerson(ev) {
     personId = id;
     if (ev.target.classList.contains("edit")) {
       ev.preventDefault();
-      document.getElementById(".dlgPerson").classList.add("active");
+      document.getElementById(".overlayPerson").classList.add("active");
       document.querySelector(".overlay").classList.add("active");
-      const docRef = doc(db, "people", id);
-      const docSnapshot = await getDoc(docRef);
-      const data = docSnapshot.data();
-      let name = document.getElementById("name");
-      name.value = data["name"];
-      let month = document.getElementById("month");
-      month.value = data["birth-month"];
-      let day = document.getElementById("day");
-      day.value = data["birth-day"];
-      document.getElementById("btnSavePerson").setAttribute("data-id", id);
+      //functionality when user clicks on save:
+      document.getElementById('btnSave').addEventListener('click', updatePerson)
     } else if (ev.target.classList.contains("delete")) {
-      document.querySelector(".overlay").classList.add("acitive");
+      ev.preventDefault();
+      document.querySelector(".overlayPerson").classList.add("acitive");
       document.getElementById("deletePersonSection").classList.add("active");
       document.getElementById("yesDelete").setAttribute("data-id", id);
     } else {
@@ -226,7 +219,9 @@ function handleSelectPerson(ev) {
 }
 
 
-async function deletePerson(){}
+async function updatePerson(ev){}
+
+async function deletePerson(ev){}
 
 
 
