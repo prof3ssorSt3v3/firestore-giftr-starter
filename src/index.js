@@ -82,7 +82,6 @@ document.addEventListener("DOMContentLoaded", () => {
       ideas.push({ id: doc.id, ...doc.data() });
     });
     getIdeas(personId);
-    console.log("onSnapshot: Building Ideas");
   });
 });
 
@@ -135,7 +134,6 @@ async function getIdeas(id) {
     const id = doc.id;
     ideas.push({ id, ...data });
   });
-  console.log(ideas);
   buildIdeas(ideas);
 }
 
@@ -209,7 +207,6 @@ async function handleSelectPerson(ev) {
   const li = ev.target.closest(".person");
   const id = li ? li.getAttribute("data-id") : null;
   if (ev.target.classList.contains("edit")) {
-    console.log(id);
     document.querySelector(".overlay").classList.add("active");
     document.getElementById("dlgPerson").classList.add("active");
     const docRef = doc(db, "people", id);
@@ -223,7 +220,6 @@ async function handleSelectPerson(ev) {
     day.value = data["birth-day"];
     document.getElementById("btnSavePerson").setAttribute("data-id", id);
   } else if (ev.target.closest(".delete")) {
-    console.log(id);
     document.querySelector(".overlay").classList.add("active");
     document.getElementById("deletePerson").classList.add("active");
     document.getElementById("btnYes").setAttribute("data-id", id);
@@ -296,10 +292,7 @@ async function handleSelectIdea(ev) {
     let location = document.getElementById("location");
     location.value = data["location"];
     document.getElementById("btnSaveIdea").setAttribute("data-id", id);
-    console.log("Person ID", personId);
-    console.log("Idea ID", id);
   } else if (ev.target.closest(".delete")) {
-    console.log("To delete: ", id);
     document.querySelector(".overlay").classList.add("active");
     document.getElementById("deleteIdea").classList.add("active");
     document.getElementById("btnYes").setAttribute("data-id", id);
@@ -312,7 +305,6 @@ async function handleSelectIdea(ev) {
 
 async function deleteIdea() {
   let selectedId = document.getElementById("btnYes").getAttribute("data-id");
-  console.log(selectedId);
   const docRef = doc(db, "gift-ideas", selectedId);
   await deleteDoc(docRef);
   document.getElementById("deleteAlert").classList.add("active");
@@ -361,6 +353,7 @@ function hideOverlay(ev) {
     .querySelectorAll(".overlay dialog")
     .forEach((dialog) => dialog.classList.remove("active"));
 }
+
 function showOverlay(ev) {
   ev.preventDefault();
   document.querySelector(".overlay").classList.add("active");
