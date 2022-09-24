@@ -8,6 +8,9 @@
     <script src="./bundle.js" type="module"></script>
     <link rel="stylesheet" href="./main.css" />
   </head>
+
+
+
   <body>
     <header>
       <h1>Fire-Giftr</h1>
@@ -15,13 +18,14 @@
     </header>
     <main>
       <section class="people">
-        <h2>People <button id="btnAddPerson">Add Person</button></h2>
+        <h2>People<button id="btnAddPerson">Add Person</button></h2>
         <ul class="person-list">
         </ul>
       </section>
       <section class="ideas">
         <h2>Ideas <button id="btnAddIdea">Add Idea</button></h2>
         <ul class="idea-list">
+          
         </ul>
       </section>
 
@@ -29,7 +33,7 @@
     </main>
     <section class="overlay">
       <dialog id="dlgPerson" class="">
-        <h2 class="addPerson">Add Person</h2>
+        <h2 class="edit">Add Person</h2>
         <p>
           <label for="name">Name:</label>
           <input
@@ -54,10 +58,12 @@
           <label for="day">Birth Day:</label>
           <input type="number" id="day" name="day" min="1" max="31" value="1" />
         </p>
+
         <p>
           <button id="btnCancelPerson">Cancel</button>
           <button id="btnSavePerson">Save</button>
         </p>
+
       </dialog>
       <dialog id="dlgIdea" class="">
         <h2>Add Gift Idea</h2>
@@ -83,17 +89,32 @@
           <button id="btnCancelIdea">Cancel</button>
           <button id="btnSaveIdea">Save</button>
         </p>
-      </dialog>
-    //confirmation of deleting person and idea message 
-    <dialog id = "deleteConfirm">
-     <h2>Delete</h2>
-     <p>Are you sure you would like to delete this?</p>
-     <div class="deleteButtons">
-       <button id="yesDelete">yes</button>
-       <button id="noDelete">no</button>
-     </div>
     </dialog>
 
+
+
+
+    //delete and cancel delete layout : for both idea and person
+    //delete person
+      </dialog id = "deletePerson" class ="">
+     <h2>Delete</h2>
+     <p>Are you sure you would like to delete this?</p>
+       <button id="yesDelete">delete</button>
+       <button id="noDelete">cancel</button>
+    </dialog>
+    //delete gift 
+  </dialog id = "deleteGift" class ="">
+  <h2>Delete</h2>
+  <p>Are you sure you would like to delete this?</p>
+  <div class="deleteButtons">
+    <button id="yesDeleteIdea">delete</button>
+    <button id="noDeleteIdea">cancel</button>
+  </div>
+ </dialog>
+
+
+
+ 
 
     </section>
   </body>

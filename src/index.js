@@ -1,9 +1,9 @@
 /**.
- * pre project steps: 
+ * pre project steps:
  * creating own firebase project, app and database.
  * insertion of config object into the js file
- * 
- * FUNCTIONALITY: 
+ *
+ * FUNCTIONALITY:
  * 1. READS a list of people from the data, displays their names, birhtdays and months
  * 2. first person automatically selected and the gifts of person is displayed
  * 3. clicking on a person list item READS all gift ideas from that person and displays
@@ -35,7 +35,9 @@ import {
   addDoc,
   setDoc,
   orderBy,
-  onSnapshot
+  onSnapshot,
+  updateDoc,
+  deleteDoc,
 } from "firebase/firestore";
 
 // Your web app's Firebase configuration object
@@ -52,11 +54,11 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig); //connects to firebase backend
-const db = getFirestore(); //referenece for the db
-let personId = null;
-let giftId = null;
+const db = getFirestore(app); //referenece for the db
+let personId = "";
+let giftId = "";
 let people = [];
-let ideas = [];
+
 const months = [
   "January",
   "February",
@@ -75,11 +77,11 @@ const months = [
 document.addEventListener("DOMContentLoaded", () => {
   //set up the dom events
 
-  document.getElementById('noDelete')
-  .addEventListener("click", hideOverlay);
+  document
+  .getElementById("yesDelete").addEventListener("click", deletePerson);
 
-  document.getElementById('yesDelete')
-  .addEventListener("click", deleteSection);
+  document.
+  getElementById("yesDeleteIdea").addEventListener("click", deleteIdea);
 
   document
     .getElementById("btnCancelPerson")
@@ -89,29 +91,31 @@ document.addEventListener("DOMContentLoaded", () => {
     .getElementById("btnCancelIdea")
     .addEventListener("click", hideOverlay);
 
-
-  document.querySelector(".overlay")
-  .addEventListener("click", hideOverlay);
+  document.querySelector(".overlay").addEventListener("click", hideOverlay);
 
   document
     .getElementById("btnAddPerson")
     .addEventListener("click", showOverlay);
 
-  document.getElementById("btnAddIdea")
-  .addEventListener("click", showOverlay);
+  document.getElementById("btnAddIdea").addEventListener("click", showOverlay);
 
   document
     .getElementById("btnSavePerson")
     .addEventListener("click", savePerson);
 
-  document.getElementById("btnSaveIdea")
-  .addEventListener("click", saveIdea);
+  document.getElementById("btnSaveIdea").addEventListener("click", saveIdea);
 
   document
     .querySelector(".person-list")
     .addEventListener("click", handleSelectPerson);
 
-  loadData();
+  document
+    .querySelector(".idea-list")
+    .addEventListener("click", handleSelectedIdea);
+
+  getPeople();
+
+  
 });
 
 function hideOverlay(ev) {
@@ -123,15 +127,17 @@ function hideOverlay(ev) {
     ev.target.id != "btnSaveIdea" &&
     ev.target.id != "btnSavePerson"
   )
-    return;
-
+    return; 
+    document.getElementById("title").value = "";
+    document.getElementById("location").value = "";
+    document.getElementById("name").value = "";
+    document.getElementById("day").value = "";
+    document.getElementById("month").value = "";
   document.querySelector(".overlay").classList.remove("active");
   document
     .querySelectorAll(".overlay dialog")
     .forEach((dialog) => dialog.classList.remove("active"));
 }
-
-
 
 function showOverlay(ev) {
   ev.preventDefault();
@@ -139,14 +145,6 @@ function showOverlay(ev) {
   const id = ev.target.id === "btnAddPerson" ? "dlgPerson" : "dlgIdea";
   document.getElementById(id).classList.add("active");
 }
-
-function loadData() {
-  getPeople();
-}
-
-
-
-
 
 /**people functionality */
 //getPerson functionality
@@ -180,11 +178,7 @@ function buildPeople(people) {
     })
     .join("");
   personId = people[0].id;
-  let li = document.querySelector(`[data-id="${personId}"]`);
-  li.click();
 }
-
-
 
 function showPerson(person) {
   const ul = document.querySelector("ul.person-list");
@@ -198,41 +192,85 @@ function showPerson(person) {
 }
 
 function handleSelectPerson(ev) {
-  const li = ev.target.closest(".person"); 
-  li.click();
-  console.log("testing user clicked on element");
-  const id = li ? li.getAttribute("data-id") : null; 
-
+  const li = ev.target.closest(".person");
+  //li.click();
+  //console.log("testing user clicked on element");
+  const id = li ? li.getAttribute("data-id") : null;
+  //when user clicks on edit or delete person
   if (id) {
     personId = id;
- 
-    let docRef = doc(collection(db, "people"), personId);
     if (ev.target.classList.contains("edit")) {
+      ev.preventDefault();
+      document.getElementById(".dlgPerson").classList.add("active");
+      document.querySelector(".overlay").classList.add("active");
+      const docRef = doc(db, "people", id);
+      const docSnapshot = await getDoc(docRef);
+      const data = docSnapshot.data();
+      let name = document.getElementById("name");
+      name.value = data["name"];
+      let month = document.getElementById("month");
+      month.value = data["birth-month"];
+      let day = document.getElementById("day");
+      day.value = data["birth-day"];
+      document.getElementById("btnSavePerson").setAttribute("data-id", id);
     } else if (ev.target.classList.contains("delete")) {
-
     } else {
       document.querySelector("li.selected")?.classList.remove("selected");
       li.classList.add("selected");
-  
+
       getIdeas(id);
     }
   } else {
-    
   }
 }
+
+
+async function deletePerson(){}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function handleSelectedIdea(ev) {
+  const giftId = id;
+}
+
+
+
+async function deleteIdea(){
+
+}
+
+
+
+
+
+
 
 
 async function getIdeas(id) {
   const personRef = doc(collection(db, "people"), id); //get reference for people
   const ideaCollectionRef = collection(db, "giift-ideas"); //get reference for gift teams
-  const docs = query(ideaCollectionRef,where("person-id", "==", personRef));
+  const docs = query(ideaCollectionRef, where("person-id", "==", personRef));
   const querySnapshot = await getDocs(docs);
   const ideas = [];
-; 
   querySnapshot.forEach((doc) => {
     const data = doc.data();
     const id = doc.id;
-   // console.log(data['person-id']);
+    // console.log(data['person-id']);
     ideas.push({
       id,
       title: data.idea,
@@ -264,37 +302,32 @@ function buildIdeas(ideas) {
     ul.innerHTML =
       '<li class="idea"><p></p><p>No Gift Ideas for selected person.</p></li>'; //clear in case there are no records to shows
   }
-
 }
 async function saveIdea() {
   let title = document.getElementById("title").value;
   let location = document.getElementById("location").value;
-  if (!title || !location) return; 
+  if (!title || !location) return;
   const personRef = doc(db, `/people/${personId}`);
   const idea = {
-    title,
-    location,
-    "person-id": personRef,
+    title: title,
+    location: location,
+    bought: false,
+    "person-id": personId,
   };
 
   try {
     const docRef = await addDoc(collection(db, "giift-ideas"), idea);
     console.log("Document written with ID: ", docRef.id);
     idea.id = docRef.id;
- 
+
     document.getElementById("title").value = "";
     document.getElementById("location").value = "";
     document.querySelector(".overlay").click();
     getIdeas(personId);
   } catch (err) {
     console.error("Error adding document: ", err);
-
   }
-  
 }
-
-
-
 
 async function savePerson() {
   //take the information from the dialog, save as an object, push to firestore
@@ -320,13 +353,8 @@ async function savePerson() {
   } catch (err) {
     console.error("Error adding document: ", err);
   }
-  
 }
 
-
-
-
-async function deleteSection(){
-
+async function deleteSection() {
   //deleteDoc(docRef)
 }

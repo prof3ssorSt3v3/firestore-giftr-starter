@@ -1,5 +1,5 @@
 :root {
-  --dark-purple: #ac9fbb;
+  --dark-purple: #70598a;
   --light-pruplr: #ddbdd5;
   --very-light-purple: #f7ebec;
   --radii: 0.4rem;
@@ -12,7 +12,7 @@
 }
 html {
   font-size: 20px;
-  font-family: sans-serif;
+  font-family: "JetBrains Mono",monospace;
 }
 body {
   min-height: 100vh;
@@ -28,7 +28,7 @@ header {
 header h1 {
   font-size: 4rem;
   font-weight: 500;
-  color: #fff;
+  color: var(---purple);
   text-shadow: 2px 2px 2px var(--dark-purple);
   text-align: center;
 }
@@ -87,9 +87,39 @@ section h2 > button {
   -ms-border-radius: var(--radii);
   -o-border-radius: var(--radii);
 }
+
+.editPerson, .deletePerson{
+  align-items: center;
+  appearance: none;
+  border-width: 0;
+  box-shadow: rgba(45, 35, 66, 0.4) 0 2px 4px,rgba(45, 35, 66, 0.3) 0 7px 13px -3px,#D6D6E7 0 -3px 0 inset;
+  box-sizing: border-box;
+  color: #36395A;
+  cursor: pointer;
+  display: inline-flex;
+  height: 48px;
+  justify-content: center;
+  line-height: 1;
+  margin: 0.2rem;
+  padding: 0.1rem 2rem;
+  background-color: var(--very-light-purple);
+  border-radius: 2rem;
+  cursor: pointer;}
+
+
+
+
 ul {
   list-style: none;
 }
+
+.person-list{
+display: flex;
+flex-direction: column;
+justify-content: space-between;
+}
+
+
 .person-list li {
   margin: 1rem 0;
   padding: 0.5rem 2rem;
@@ -123,6 +153,7 @@ ul {
   -moz-border-radius: var(--radii);
   -ms-border-radius: var(--radii);
   -o-border-radius: var(--radii);
+  
 }
 .idea-list .idea label {
   font-size: 0.8rem;
@@ -226,11 +257,3 @@ li {
   display: flex;
 }
 
-.editPerson,
-.deletePerson {
-  margin: 0.2rem;
-  padding: 0.1rem 2rem;
-  background-color: var(--very-light-purple);
-  border-radius: 2rem;
-  cursor: pointer;
-}
