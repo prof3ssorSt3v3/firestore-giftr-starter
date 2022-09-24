@@ -81,7 +81,6 @@ document.addEventListener("DOMContentLoaded", () => {
     snapshot.docs.forEach((doc) => {
       ideas.push({ id: doc.id, ...doc.data() });
     });
-    //buildIdeas(ideas);
     getIdeas(personId);
     console.log("onSnapshot: Building Ideas");
   });
@@ -146,19 +145,23 @@ function buildIdeas(ideas) {
     ul.innerHTML = ideas
       .map((idea) => {
         return `<li class="idea" data-id="${idea.id}">
-                <label for="chk-${idea.id}">
-                <input type="checkbox" id="chk-${idea.id}" /> Bought</label>
-                <p class="title">${idea.idea}</p>
-                <p class="location">${idea.location}</p>
-                <button class="edit">Edit</button>
-                <button class="delete">Delete</button>
-              </li>`;
+      <label for="chk-${idea.id}">
+      <input type="checkbox" id="chk-${idea.id}" /> Bought</label>
+      <p class="title">${idea.idea}</p>
+      <p class="location">${idea.location}</p>
+      <button class="edit">Edit</button>
+      <button class="delete">Delete</button>
+      </li>`;
       })
       .join("");
   } else {
     ul.innerHTML = '<li class="idea"><p></p><p>No gift ideas.</p></li>';
   }
-  console.log(ideas);
+  ideas.forEach((idea) => {
+    if (idea.bought == true) {
+      document.getElementById(`chk-${idea.id}`).checked = true;
+    }
+  });
 }
 
 async function savePerson() {
@@ -320,12 +323,18 @@ async function toggleBought(state, id) {
   if (state === true) {
     try {
       await updateDoc(doc(db, "gift-ideas", id), { bought: true });
+      document
+        .querySelectorAll("input[type=checkbox]")
+        .forEach((box) => (box.checked = true));
     } catch (err) {
       console.error("Error updating document: ", err);
     }
   } else {
     try {
       await updateDoc(doc(db, "gift-ideas", id), { bought: false });
+      document
+        .querySelectorAll("input[type=checkbox]")
+        .forEach((box) => (box.checked = false));
     } catch (err) {
       console.error("Error updating document: ", err);
     }
