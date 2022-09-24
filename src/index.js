@@ -81,7 +81,9 @@ document.addEventListener("DOMContentLoaded", () => {
     snapshot.docs.forEach((doc) => {
       ideas.push({ id: doc.id, ...doc.data() });
     });
-    buildIdeas(ideas);
+    //buildIdeas(ideas);
+    getIdeas(personId);
+    console.log("onSnapshot: Building Ideas");
   });
 });
 
@@ -156,6 +158,7 @@ function buildIdeas(ideas) {
   } else {
     ul.innerHTML = '<li class="idea"><p></p><p>No gift ideas.</p></li>';
   }
+  console.log(ideas);
 }
 
 async function savePerson() {
@@ -298,16 +301,9 @@ async function handleSelectIdea(ev) {
     document.getElementById("deleteIdea").classList.add("active");
     document.getElementById("btnYes").setAttribute("data-id", id);
   } else {
-    let checkBox = document.getElementById(`chk-${id}`);
-    checkBox.addEventListener("change", () => {
-      if (checkBox.checked) {
-        checkBox.setAttribute("checked", true);
-        toggleBought("Checked", id);
-      } else {
-        checkBox.removeAttribute("checked");
-        toggleBought("Unchecked", id);
-      }
-    });
+    let checkBox = ev.target.closest("input[type=checkbox]");
+    let state = checkBox.checked;
+    checkBox.addEventListener("change", toggleBought(state, id));
   }
 }
 
@@ -321,7 +317,7 @@ async function deleteIdea() {
 }
 
 async function toggleBought(state, id) {
-  if (state == "Checked") {
+  if (state === true) {
     try {
       await updateDoc(doc(db, "gift-ideas", id), { bought: true });
     } catch (err) {
