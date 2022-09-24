@@ -178,6 +178,7 @@ function buildPeople(people) {
     })
     .join("");
   personId = people[0].id;
+
 }
 
 function showPerson(person) {
@@ -193,11 +194,9 @@ function showPerson(person) {
 
 function handleSelectPerson(ev) {
   const li = ev.target.closest(".person");
-  //li.click();
-  //console.log("testing user clicked on element");
   const id = li ? li.getAttribute("data-id") : null;
   //when user clicks on edit or delete person
-  if (id) {
+  if(id){
     personId = id;
     if (ev.target.classList.contains("edit")) {
       ev.preventDefault();
@@ -214,31 +213,20 @@ function handleSelectPerson(ev) {
       day.value = data["birth-day"];
       document.getElementById("btnSavePerson").setAttribute("data-id", id);
     } else if (ev.target.classList.contains("delete")) {
+      document.querySelector(".overlay").classList.add("acitive");
+      document.getElementById("deletePersonSection").classList.add("active");
+      document.getElementById("yesDelete").setAttribute("data-id", id);
     } else {
       document.querySelector("li.selected")?.classList.remove("selected");
       li.classList.add("selected");
-
       getIdeas(id);
     }
-  } else {
   }
+
 }
 
 
 async function deletePerson(){}
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -260,7 +248,6 @@ async function deleteIdea(){
 
 
 
-
 async function getIdeas(id) {
   const personRef = doc(collection(db, "people"), id); //get reference for people
   const ideaCollectionRef = collection(db, "giift-ideas"); //get reference for gift teams
@@ -271,14 +258,7 @@ async function getIdeas(id) {
     const data = doc.data();
     const id = doc.id;
     // console.log(data['person-id']);
-    ideas.push({
-      id,
-      title: data.idea,
-      location: data.location,
-      bought: data.bought,
-      person_id: data["person-id"].id,
-      person_ref: data["person-id"],
-    });
+    ideas.push({ id, ...data });
   });
   //now build the HTML from the ideas array
   buildIdeas(ideas);
