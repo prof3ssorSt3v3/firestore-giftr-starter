@@ -1,7 +1,7 @@
 :root {
   --dark-purple: #70598a;
-  --light-pruplr: #ddbdd5;
-  --very-light-purple: #f7ebec;
+  --light-purple: #ddbdd5;
+  --very-light-purple: #fFebec;
   --radii: 0.4rem;
 }
 * {
@@ -12,7 +12,7 @@
 }
 html {
   font-size: 20px;
-  font-family: "JetBrains Mono",monospace;
+  font-family: "JetBrains Mono", monospace;
 }
 body {
   min-height: 100vh;
@@ -49,14 +49,14 @@ main > section {
   flex-grow: 1;
   flex-shrink: 1;
 }
-section.people{
+section.people {
   display: flex;
   flex-direction: column;
 }
 @media (max-width: 800px) {
   section.people {
     flex-grow: 2;
-    flex-shrink: 1; 
+    flex-shrink: 1;
     flex-basis: 150px;
   }
 }
@@ -88,13 +88,22 @@ section h2 > button {
   -o-border-radius: var(--radii);
 }
 
-.editPerson, .deletePerson{
+.buttons {
+  display: flex;
+  margin-right: auto;
+}
+
+.editPerson,
+.deletePerson,
+.editIdea,
+.deleteIdea {
   align-items: center;
   appearance: none;
   border-width: 0;
-  box-shadow: rgba(45, 35, 66, 0.4) 0 2px 4px,rgba(45, 35, 66, 0.3) 0 7px 13px -3px,#D6D6E7 0 -3px 0 inset;
+  box-shadow: rgba(45, 35, 66, 0.4) 0 2px 4px,
+    rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #d6d6e7 0 -3px 0 inset;
   box-sizing: border-box;
-  color: #36395A;
+  color: #36395a;
   cursor: pointer;
   display: inline-flex;
   height: 48px;
@@ -104,35 +113,35 @@ section h2 > button {
   padding: 0.1rem 2rem;
   background-color: var(--very-light-purple);
   border-radius: 2rem;
-  cursor: pointer;}
-
-
-
+  cursor: pointer;
+}
 
 ul {
   list-style: none;
 }
 
-.person-list{
-display: flex;
-flex-direction: column;
-justify-content: space-between;
+.person-list {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-
-.person-list li {
+.person-list .person {
   margin: 1rem 0;
   padding: 0.5rem 2rem;
   cursor: pointer;
 }
-.person-list li.selected {
+
+.person-list .selected {
   background-color: var(--light-purple);
 }
+
 .person-list p.name {
   font-size: 1.2rem;
   line-height: 2rem;
   color: #222;
 }
+
 .person-list p.dob {
   font-size: 0.8rem;
   line-height: 1rem;
@@ -140,7 +149,16 @@ justify-content: space-between;
   color: #777;
 }
 
-.idea-list li.idea {
+.person {
+  padding: 5px;
+}
+
+.person:hover {
+  background: var(--very-light-purple);
+  border-radius: 5px;
+  border-color: var(--light-purple);
+}
+.idea-list .idea {
   border: 1px solid #222;
   border-radius: var(--radii);
   margin: 1rem 0;
@@ -153,7 +171,6 @@ justify-content: space-between;
   -moz-border-radius: var(--radii);
   -ms-border-radius: var(--radii);
   -o-border-radius: var(--radii);
-  
 }
 .idea-list .idea label {
   font-size: 0.8rem;
@@ -206,6 +223,7 @@ section.overlay.active {
   justify-content: center;
   align-items: center;
 }
+
 dialog {
   background-color: #fff;
   display: none;
@@ -256,4 +274,3 @@ dialog button,
 li {
   display: flex;
 }
-
