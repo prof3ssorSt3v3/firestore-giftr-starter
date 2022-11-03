@@ -96,6 +96,10 @@ li {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 0.35rem 0;
+}
+
+.person {
   cursor: pointer;
 }
 
@@ -163,6 +167,7 @@ li {
 .person.selected .name {
   color: #7A1000;
   font-weight: 800;
+  font-size: 1.27rem;
 }
 
 .person.selected .dob {
