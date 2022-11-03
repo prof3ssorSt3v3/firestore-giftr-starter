@@ -26,6 +26,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
 const people = [];
 const months = [
   "January",
@@ -43,6 +44,7 @@ const months = [
 ];
 let personId = "";
 let ideaId = "";
+
 document.addEventListener("DOMContentLoaded", () => {
   getPeople();
   document
@@ -76,6 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     buildPeople(people);
   });
+
   onSnapshot(collection(db, "gift-ideas"), (snapshot) => {
     let ideas = [];
     snapshot.docs.forEach((doc) => {
@@ -104,17 +107,21 @@ function buildPeople(people) {
           person["birth-day"]
         }`;
         return `<li data-id="${person.id}" class="person">
-                <p class="name">${person.name}</p>
-                <p class="dob">${dob}</p>
-                <button class="edit">Edit</button>
-                <button class="delete">Delete</button>
+                  <div class="person-info">
+                    <p class="name">${person.name}</p>
+                    <p class="dob">${dob}</p>
+                  </div>
+                  <div class="edit-delete-btn">
+                    <button class="edit">Edit</button>
+                    <button class="delete">Delete</button>
+                  </div>
                 </li>`;
       })
       .join("");
     ul.children[0].classList.add("selected");
   } else {
     ul.innerHTML =
-      '<li class="idea"><p></p><p>People collection is empty.</p></li>';
+      '<li class="empty-person"><p>People collection is empty.</p></li>';
   }
   let id = people[0].id;
   personId = id;
@@ -142,24 +149,40 @@ function buildIdeas(ideas) {
   if (ideas.length) {
     ul.innerHTML = ideas
       .map((idea) => {
-        return `<li class="idea" data-id="${idea.id}">
-      <label for="chk-${idea.id}">
-      <input type="checkbox" id="chk-${idea.id}" /> Bought</label>
-      <p class="title">${idea.idea}</p>
-      <p class="location">${idea.location}</p>
-      <button class="edit">Edit</button>
-      <button class="delete">Delete</button>
-      </li>`;
+        if (idea.bought === true) {
+          return `<li class="idea" data-id="${idea.id}">
+                    <div class="idea-info">
+                      <label for="chk-${idea.id}"><input type="checkbox" id="chk-${idea.id}" checked/> Bought</label>
+                      <div>
+                        <p class="title">${idea.idea}</p>
+                        <p class="location">${idea.location}</p>
+                      </div>
+                    </div>
+                    <div class="edit-delete-btn">
+                      <button class="edit">Edit</button>
+                      <button class="delete">Delete</button>
+                    </div>
+                  </li>`;
+        } else {
+          return `<li class="idea" data-id="${idea.id}">
+                    <div class="idea-info">
+                      <label for="chk-${idea.id}"><input type="checkbox" id="chk-${idea.id}" /> Bought</label>
+                      <div>
+                        <p class="title">${idea.idea}</p>
+                        <p class="location">${idea.location}</p>
+                      </div>
+                    </div>
+                    <div class="edit-delete-btn">
+                      <button class="edit">Edit</button>
+                      <button class="delete">Delete</button>
+                    </div>
+                  </li>`;
+        }
       })
       .join("");
   } else {
-    ul.innerHTML = '<li class="idea"><p></p><p>No gift ideas.</p></li>';
+    ul.innerHTML = '<li class="no-idea"><p></p><p>No gift ideas.</p></li>';
   }
-  ideas.forEach((idea) => {
-    if (idea.bought == true) {
-      document.getElementById(`chk-${idea.id}`).checked = true;
-    }
-  });
 }
 
 async function savePerson() {
@@ -169,7 +192,7 @@ async function savePerson() {
   let name = document.getElementById("name").value;
   let month = document.getElementById("month").value;
   let day = document.getElementById("day").value;
-  if (!name || !month || !day) return;
+  if (!name || !month || !day) return alert("Please fill all fields.");
   const person = {
     name,
     "birth-month": month,
@@ -242,7 +265,7 @@ async function saveIdea() {
   let ideaId = document.getElementById("btnSaveIdea").getAttribute("data-id");
   let idea = document.getElementById("title").value;
   let location = document.getElementById("location").value;
-  if (!idea || !location) return;
+  if (!idea || !location) return alert("Please fill all fields.");
   const personRef = doc(db, `/people/${personId}`);
   const giftIdea = {
     idea,
@@ -315,18 +338,14 @@ async function toggleBought(state, id) {
   if (state === true) {
     try {
       await updateDoc(doc(db, "gift-ideas", id), { bought: true });
-      document
-        .querySelectorAll("input[type=checkbox]")
-        .forEach((box) => (box.checked = true));
+      document.getElementById(`chk-${id}`).checked = true;
     } catch (err) {
       console.error("Error updating document: ", err);
     }
   } else {
     try {
       await updateDoc(doc(db, "gift-ideas", id), { bought: false });
-      document
-        .querySelectorAll("input[type=checkbox]")
-        .forEach((box) => (box.checked = false));
+      document.getElementById(`chk-${id}`).checked = false;
     } catch (err) {
       console.error("Error updating document: ", err);
     }

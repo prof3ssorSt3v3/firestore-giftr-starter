@@ -1,227 +1,264 @@
 @import url("https://fonts.googleapis.com/css2?family=Varela+Round&display=swap");
 
-:root {
-  --dark-orange: #f5820d;
-  --light-orange: #ffcb2a;
-  --very-light-orange: #ffeb9a;
-  --radii: 0.4rem;
-}
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-  font-weight: 300;
-}
 html {
-  font-size: 20px;
   font-family: "Varela Round", sans-serif;
+  box-sizing: border-box;
 }
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
 body {
-  min-height: 100vh;
-  background-color: #F0EBE3;
+  width: 100%;
+  max-width: 85em;
+  margin: 0 auto;
+  background-color: #F2F4F5;
 }
-header,
-main {
-  padding: 1rem 4rem;
+
+/*  -   -   Typography and Layout   -   -   */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ul,
+ol {
+  margin: 0;
 }
+
 header {
-  /* background-color: var(--light-orange); */
-  background-color: #121212;
-  border-bottom: 0.05rem solid #f3f3f3;
+  padding: 1rem;
 }
-header h1 {
-  font-size: 4rem;
-  font-weight: 500;
-  color: #ce1126;
-  
+
+h1 {
+  font-size: 1.802rem;
+  color: #114764;
 }
-header h2 {
-  font-size: 2.5rem;
-  font-weight: 300;
-  color: #f2f2f2;
+
+h2 {
+  font-size: 1.602rem;
+  color: #114764;
 }
+
 main {
   display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: flex-start;
+  justify-content: space-evenly;
+  gap: 1.5rem;
 }
-main > section {
-  padding-right: 1rem;
-  flex-basis: 50%;
-  flex-grow: 1;
-  flex-shrink: 1;
+
+.people,
+.ideas {
+  width: 50%;
+  padding: 1rem;
+  border: 1px solid #C7E1E0;
+  border-radius: 0.5rem;
+  background-color: #C7E1E0;
+  box-shadow: 1px 1px 5px #a1a1a1;
 }
-section.ideas {
-  min-height: 100vh;
-  padding-left: 1rem;
-  border-left: 1px solid #003B4A;
-}
-section h2 {
-  font-size: 2rem;
-  color: #003B4A;
+
+.people-title,
+.ideas-title {
   display: flex;
   justify-content: space-between;
-}
-section h2 > button {
-  margin-right: 4rem;
-  padding: 0.1rem 2rem;
-  border: 2px solid #003B4A;
-  background-color: #fff;
-  color: #003B4A;
-  border-radius: var(--radii);
-  cursor: pointer;
-  -webkit-border-radius: var(--radii);
-  -moz-border-radius: var(--radii);
-  -ms-border-radius: var(--radii);
-  -o-border-radius: var(--radii);
-}
-ul {
-  list-style: none;
-}
-.person-list li {
-  display: grid;
-  gap: 0.75rem;
-  justify-content: center;
-  align-items: center;
-  grid-template-columns: 2fr 2fr;
-  margin: 1rem 0;
-  padding: 0.5rem 2rem;
-  cursor: pointer;
-}
-.person-list li.selected {
-  background-color: #FCCE03;
-}
-.person-list p.name {
-  
-  font-size: 1.2rem;
-  line-height: 2rem;
-  color: #000;
-}
-.person-list p.dob {
-  
-  font-size: 0.8rem;
-  line-height: 1rem;
-  font-weight: 100;
-  color: #121212;
+  margin-bottom: 2rem;
 }
 
-.idea-list li.idea {
-  border: none;
-  border-radius: var(--radii);
-  margin: 1rem 0;
-  display: grid;
-  justify-content: center;
-    align-items: center;
-  /*usenamedgridareas*/
-  grid-template-areas: 
-  'tab top' 'tab bottom';
-  grid-template-columns: 1fr 3fr 1fr;
-  background-color: #FCCE03;
-  -webkit-border-radius: var(--radii);
-  -moz-border-radius: var(--radii);
-  -ms-border-radius: var(--radii);
-  -o-border-radius: var(--radii);
-}
-.idea-list .idea label {
-  font-size: 0.8rem;
-  line-height: 1rem;
-  font-weight: 100;
-  padding: 0.5rem;
-  color: #222;
-  grid-area: tab;
-  align-self: center;
-}
-.idea-list .idea label:has(input[type='checkbox']:checked) {
-  color: #555;
-}
-.idea-list .idea [type='checkbox'] {
-  accent-color: var(--light-orange);
-}
-.idea-list p.title {
-  font-size: 1.2rem;
-  line-height: 2rem;
-  padding: 0.5rem;
-  color: #222;
-  background-color: #fff;
-  border-top-right-radius: 0.3rem;
-  grid-area: top;
-}
-.idea-list p.location {
+p {
   font-size: 1rem;
-  line-height: 1rem;
-  padding: 0.5rem;
-  font-weight: 100;
-  color: #555;
-  background-color: #fff;
-  border-bottom-right-radius: 0.3rem;
-  grid-area: bottom;
 }
 
-section.overlay {
+.name,
+.title {
+  margin-bottom: 0.25rem;
+}
+
+.person-list,
+.idea-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  text-align: left;
+}
+
+.person,
+.idea {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.idea-info {
+  display: flex;
+  align-items: center;
+  gap: 3rem
+}
+
+#btnAddPerson,
+#btnAddIdea {
+  background-color: #1F407D;
+  font-size: 0.95rem;
+  color: #f2f2f2;
+  border: 1px solid #1F407D;
+  box-shadow: 1px 1px 2px #a1a1a1;
+  border-radius: 0.25rem;
+  padding: 0rem 1.25rem;
+  cursor: pointer;
+}
+
+.edit,
+.delete,
+#btnSavePerson,
+#btnCancelPerson,
+#btnSaveIdea,
+#btnCancelIdea,
+#btnYes,
+#btnCancel,
+#btnYesDelete {
+  border-radius: 0.25rem;
+  padding: 0.55rem 0.75rem;
+  cursor: pointer;
+  box-shadow: 1px 1px 2px #a1a1a1;
+  color: #fff
+}
+
+.edit,
+#btnSavePerson,
+#btnSaveIdea,
+#btnYes,
+#btnYesDelete {
+  background-color: #1C5A4C;
+  border: 1px solid #1C5A4C;
+  padding: 0.55rem 1rem;
+}
+
+.delete {
+  background-color: #991400;
+  border: 1px solid #991400;
+}
+
+#btnCancelPerson,
+#btnCancelIdea,
+#btnCancel {
+  background-color: #594d5b;
+  border: 1px solid #594d5b;
+}
+
+.empty-person,
+.no-idea {
+  text-align: center;
+}
+
+.person.selected .name {
+  color: #7A1000;
+  font-weight: 800;
+}
+
+.person.selected .dob {
+  color: #7A1000
+}
+
+
+/*  -   -   Dialog  -   -   */
+
+.overlay {
   position: absolute;
   top: 0;
   left: 0;
   z-index: 100;
   display: none;
 }
-section.overlay.active {
+
+.overlay.active {
   display: flex;
   flex-direction: row;
   width: 100vw;
   height: 100vh;
-  background-color: hsla(0, 0%, 0%, 0.8);
+  background-color: hsla(0, 0%, 0%, 70%);
   justify-content: center;
   align-items: center;
 }
+
 dialog {
-  background-color: #fff;
+  background-color: #F2F4F5;
   display: none;
-}
-dialog.active {
-  display: block;
-  margin: auto;
-  width: 80vw;
-  height: 60vh;
-}
-dialog.active h2 {
-  background-color: var(--dark-orange);
-  color: #fff;
-  padding: 1rem 3rem;
-  font-size: 2rem;
-}
-dialog.active p {
-  display: flex;
-  margin: 1rem 3rem;
-  justify-content: flex-start;
-  align-items: flex-start;
-}
-dialog.active label {
-  flex-basis: 20ch;
-  font-size: 1rem;
-  font-family: inherit;
-  font-weight: inherit;
-}
-dialog.active :is(input, button) {
-  font-size: 1rem;
-  font-family: inherit;
-  font-weight: inherit;
-}
-dialog button {
-  margin: 0 2rem;
-  padding: 0.1rem 2rem;
-  border: 1px solid var(--dark-orange);
-  background-color: #fff;
-  color: var(--dark-orange);
-  border-radius: var(--radii);
-  cursor: pointer;
-}
-:is(dialog, h2) button:active {
-  background-color: var(--light-orange);
+  border: none;
+  border-radius: 0.5rem;
 }
 
-.edit, .delete {
-  background-color: #f2f2f2;
-  border: 1px solid black;
-  padding: 0.15rem;
+dialog.active {
+  display: block;
+  width: 30vw;
+  height: 34vh;
+}
+
+.form {
+  display: grid;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 30em;
+  margin: auto;
+  padding: 1rem;
+  border-radius: 0.35rem;
+}
+
+label:not([type="checkbox"]) {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+input:not([type="checkbox"]) {
+  font-size: 1rem;
+  padding: 0.35rem;
+  border: 0.025rem solid #dce0e5;
+  border-radius: 0.25rem;
+  width: 100%;
+}
+
+.dlgDelete {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+#btnYes,
+#btnCancel {
+  margin: 2rem 1rem 0;
+}
+
+.added,
+.updated,
+.deleted {
+  padding-top: 2rem
+}
+
+@media only screen and (min-width: 60em) {
+  h1 {
+    font-size: 4.209rem;
+  }
+
+  h2 {
+    font-size: 3.157rem;
+  }
+
+  p {
+    font-size: 1.25rem;
+  }
+
+  .name,
+  .title {
+    margin-bottom: 0.25rem;
+  }
 }
