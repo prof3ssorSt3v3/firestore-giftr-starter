@@ -1,7 +1,6 @@
 {
   "name": "firestore-starter",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -11,7 +10,18 @@
   "author": "Steve <steve@home.org>",
   "license": "MIT",
   "dependencies": {
-    "firebase": "^9.9.3",
+    "firebase": "^9.10.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bata0020/mad9135-f22-firestore-giftr.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bata0020/mad9135-f22-firestore-giftr/issues"
+  },
+  "homepage": "https://github.com/bata0020/mad9135-f22-firestore-giftr#readme",
+  "description": "",
+  "devDependencies": {
     "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0"
   }
