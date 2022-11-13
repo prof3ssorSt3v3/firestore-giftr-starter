@@ -38,6 +38,26 @@ header h2 {
   color: var(--dark-purple);
   text-align: center;
 }
+
+.auth-nav{
+  width:100%;
+  margin:5px;
+  padding:5px;
+  color: var(--dark-purple);
+  display: flex;
+  align-content: space-around;
+  padding: 1rem;
+}
+
+.auth-nav button{
+  margin-right: 2rem;
+  padding: 0.5rem 2rem;
+  border: 1px solid var(--dark-purple);
+  border-radius: 5rem;
+  background-color: #fff;
+  color: var(--dark-purple);
+  cursor: pointer;
+}
 main {
   display: flex;
   flex-direction: row;
@@ -80,12 +100,8 @@ section h2 > button {
   border: 1px solid var(--dark-purple);
   background-color: #fff;
   color: var(--dark-purple);
-  border-radius: var(--radii);
   cursor: pointer;
-  -webkit-border-radius: var(--radii);
-  -moz-border-radius: var(--radii);
-  -ms-border-radius: var(--radii);
-  -o-border-radius: var(--radii);
+  border-radius: 5rem;
 }
 
 .buttons {

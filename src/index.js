@@ -1,28 +1,5 @@
-/**.
- * //Assignment one: firebase project
- * pre project steps:
- * creating own firebase project, app and database.
- * insertion of config object into the js file
- *
- * FUNCTIONALITY:
- * 1. READS a list of people from the data, displays their names, birhtdays and months
- * 2. first person automatically selected and the gifts of person is displayed
- * 3. clicking on a person list item READS all gift ideas from that person and displays
- * it as contents of the second list
- * 5. if either list is empty, a message is displayed "no data"
- * 6. clicking on ADD buttons should show the overlay plus the form
- * 7. once form is filled, when user clicks save, the new item should be added to database
- * as well as updated list
- * 8. the bought value should be displayed as a checkbox
- * 9. each item should have a delete button
- * 10. the delete button should delelte from database and UI
- * 11. each item should have a functional edit button
- * 12. toggling checkbox for gift should do an update in DB
- * 13. FINAL, host on github pages
- *
- *
- *
- */
+
+
 
 import { initializeApp } from "firebase/app";
 import {
@@ -42,6 +19,12 @@ import {
   arrayRemove,
   DocumentReference,
 } from "firebase/firestore";
+//setup
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+const auth = getAuth(app);
+//connect to the auth service after initializing our Firebase app
+
+
 
 // Your web app's Firebase configuration object
 //next step: connect to firebase project from the front end
@@ -58,10 +41,10 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig); //connects to firebase backend
 const db = getFirestore(app); //referenece for the db
+db.settings({timestampsInSnapshots: true});
 let personId = "";
 let giftId = "";
 let people = [];
-
 // Reference to the element to be deleted from the list if user is to be deleted
 let personToDeleteElem = null;
 
@@ -123,6 +106,52 @@ function initializeEventListeners() {
     .getElementById("noDeletePerson")
     .addEventListener("click", hideDeletePersonOverlay);
 }
+
+
+//pass in your auth object plus the email and password strings
+createUserWithEmailAndPassword(auth, email, password)
+  .then((userCredential) => {
+    // Signed in 
+    const user = userCredential.user;
+    // ...
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    // ..
+  });
+
+//pass in your auth object plus the email and password strings
+signInWithEmailAndPassword(auth, email, password)
+  .then((userCredential) => {
+    // Signed in 
+    const user = userCredential.user;
+    // ...
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+  });
+
+//track when the user logs in or out 
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    // User is signed in, see docs for a list of available properties
+    // https://firebase.google.com/docs/reference/js/firebase.User
+    const uid = user.uid;
+    // ...
+  } else {
+    // User is signed out
+    // ...
+  }
+});
+
+
+
+
+
+
+
 
 function hideOverlay(ev) {
   ev.preventDefault();
