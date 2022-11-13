@@ -1,7 +1,7 @@
 :root {
   --dark-purple: #70598a;
   --light-purple: #ddbdd5;
-  --very-light-purple: #fFebec;
+  --very-light-purple: #ffebec;
   --radii: 0.4rem;
 }
 * {
@@ -39,17 +39,18 @@ header h2 {
   text-align: center;
 }
 
-.auth-nav{
-  width:100%;
-  margin:5px;
-  padding:5px;
+.auth-nav {
+  width: 100%;
+  padding: 5px;
   color: var(--dark-purple);
   display: flex;
-  align-content: space-around;
+  justify-content: center;
+   margin: 0 auto;
   padding: 1rem;
 }
 
-.auth-nav button{
+.auth-nav button {
+  font-size: 1.4rem;
   margin-right: 2rem;
   padding: 0.5rem 2rem;
   border: 1px solid var(--dark-purple);

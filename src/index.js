@@ -1,7 +1,6 @@
 
-
-
-import { initializeApp } from "firebase/app";
+// Initialize Firebase
+const app = initializeApp(firebaseConfig); //connects to firebase backend
 import {
   getFirestore, //initialze firestore service
   collection,
@@ -19,12 +18,15 @@ import {
   arrayRemove,
   DocumentReference,
 } from "firebase/firestore";
-//setup
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+
+
+import { GithubAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
 const auth = getAuth(app);
-//connect to the auth service after initializing our Firebase app
-
-
+auth.languageCode = "en";
+const provider = new GithubAuthProvider();
+provider.setCustomParameters({
+  allow_signup: "true", 
+});
 
 // Your web app's Firebase configuration object
 //next step: connect to firebase project from the front end
@@ -38,15 +40,10 @@ const firebaseConfig = {
   measurementId: "G-11CPY45CG8",
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig); //connects to firebase backend
 const db = getFirestore(app); //referenece for the db
-db.settings({timestampsInSnapshots: true});
+db.settings({ timestampsInSnapshots: true });
 let personId = "";
-let giftId = "";
 let people = [];
-// Reference to the element to be deleted from the list if user is to be deleted
-let personToDeleteElem = null;
 
 const months = [
   "January",
@@ -105,49 +102,24 @@ function initializeEventListeners() {
   document
     .getElementById("noDeletePerson")
     .addEventListener("click", hideDeletePersonOverlay);
+
+  document
+    .getElementById("sign-in-button")
+    .addEventListener("click", attemptLogin);
+
+    document
+    .getElementById("sign-out-button")
+    .addEventListener("click", attemptLogOut);
 }
 
+function attemptLogin(ev) {
+  ev.preventDefault()
+  console.log("test")
+}
 
-//pass in your auth object plus the email and password strings
-createUserWithEmailAndPassword(auth, email, password)
-  .then((userCredential) => {
-    // Signed in 
-    const user = userCredential.user;
-    // ...
-  })
-  .catch((error) => {
-    const errorCode = error.code;
-    const errorMessage = error.message;
-    // ..
-  });
-
-//pass in your auth object plus the email and password strings
-signInWithEmailAndPassword(auth, email, password)
-  .then((userCredential) => {
-    // Signed in 
-    const user = userCredential.user;
-    // ...
-  })
-  .catch((error) => {
-    const errorCode = error.code;
-    const errorMessage = error.message;
-  });
-
-//track when the user logs in or out 
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    // User is signed in, see docs for a list of available properties
-    // https://firebase.google.com/docs/reference/js/firebase.User
-    const uid = user.uid;
-    // ...
-  } else {
-    // User is signed out
-    // ...
-  }
-});
-
-
-
+function attemptLogOut(){
+  
+}
 
 
 
@@ -212,8 +184,10 @@ function showEditIdeaOverlay(ev, element, idea) {
   document.querySelector(".overlay").classList.add("active");
   document.getElementById("editIdea").classList.add("active");
 
-  document.getElementById("titleEdit").value = element.children[1].children[0].innerHTML;
-  document.getElementById("locationEdit").value = element.children[1].children[1].innerHTML;
+  document.getElementById("titleEdit").value =
+    element.children[1].children[0].innerHTML;
+  document.getElementById("locationEdit").value =
+    element.children[1].children[1].innerHTML;
 
   document
     .getElementById("btnSaveIdea")
@@ -468,8 +442,8 @@ function buildIdeas(ideas) {
 async function createIdea() {
   let title = document.getElementById("titleAdd").value;
   let location = document.getElementById("locationAdd").value;
-  let selectedPerson = document.querySelector('.person.selected');
-  let personId = selectedPerson.getAttribute('data-id');
+  let selectedPerson = document.querySelector(".person.selected");
+  let personId = selectedPerson.getAttribute("data-id");
 
   if (!title || !location) return;
 
