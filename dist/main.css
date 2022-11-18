@@ -110,6 +110,10 @@ section h2 > button {
   margin-right: auto;
 }
 
+.hide-button {
+  display: none;
+}
+
 .editPerson,
 .deletePerson,
 .editIdea,
@@ -291,3 +295,16 @@ dialog button,
 li {
   display: flex;
 }
+
+
+
+
+#user-name, #user-email{
+  background-color: var(--very-light-purple);
+  display: block;
+}
+
+#name-text, #user-name-text{
+font-weight: bold;
+}
+

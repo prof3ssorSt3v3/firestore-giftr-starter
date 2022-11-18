@@ -1,5 +1,5 @@
-#firebase hybrid instructions
-##mad9135
+firebase hybrid instructions
+
 
 hybrid one: firebase edit and delete 
 1.  READS a list of people from the data, displays their names, birhtdays and months

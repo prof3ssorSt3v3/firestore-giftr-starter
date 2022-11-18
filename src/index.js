@@ -1,6 +1,4 @@
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig); //connects to firebase backend
 import {
   getFirestore, //initialze firestore service
   collection,
@@ -16,17 +14,11 @@ import {
   updateDoc,
   deleteDoc,
   arrayRemove,
-  DocumentReference,
+  DocumentReference
 } from "firebase/firestore";
 
-
-import { GithubAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
-const auth = getAuth(app);
-auth.languageCode = "en";
-const provider = new GithubAuthProvider();
-provider.setCustomParameters({
-  allow_signup: "true", 
-});
+import { GithubAuthProvider, getAuth, signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
+import { initializeApp } from "firebase/app"
 
 // Your web app's Firebase configuration object
 //next step: connect to firebase project from the front end
@@ -40,8 +32,28 @@ const firebaseConfig = {
   measurementId: "G-11CPY45CG8",
 };
 
+// Initialize Firebase
+const app = initializeApp(firebaseConfig); //connects to firebase backend
+const auth = getAuth(app);
+auth.languageCode = "en";
+const provider = new GithubAuthProvider();
+provider.setCustomParameters({
+  allow_signup: "truauthUsere", 
+});
+
+let authUser = null;
+
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    toggleButtons(true);
+  } else {
+    toggleButtons(false);
+  }
+})
+
 const db = getFirestore(app); //referenece for the db
-db.settings({ timestampsInSnapshots: true });
+// db.settings({ timestampsInSnapshots: true });
+
 let personId = "";
 let people = [];
 
@@ -60,8 +72,7 @@ const months = [
   "December",
 ];
 
-document.addEventListener("DOMContentLoaded", async () => {
-  await getPeople();
+document.addEventListener("DOMContentLoaded", () => {
   //set up the dom events
   initializeEventListeners();
 });
@@ -104,26 +115,58 @@ function initializeEventListeners() {
     .addEventListener("click", hideDeletePersonOverlay);
 
   document
-    .getElementById("sign-in-button")
+    .getElementById("signInButton")
     .addEventListener("click", attemptLogin);
 
-    document
-    .getElementById("sign-out-button")
+  document
+    .getElementById("signOutButton")
     .addEventListener("click", attemptLogOut);
 }
 
-function attemptLogin(ev) {
-  ev.preventDefault()
-  console.log("test")
+function attemptLogin(ev) {-
+  ev.preventDefault();
+  signInWithPopup(getAuth(), provider).then(async (res) => {
+    authUser = res.user;
+    toggleButtons(true);
+    displayUserDetails(authUser);
+    await getPeople();
+  }).catch(error => {
+    alert('Error when authenticating...');
+  })
 }
 
-function attemptLogOut(){
-  
+function attemptLogOut(ev){
+  ev.preventDefault();
+  signOut(getAuth()).then(() => {
+    authUser = null;
+    toggleButtons(false);
+    displayUserDetails(null);
+    clearUserData();
+  }).catch(error => {
+    alert('Error when authenticating...');
+  })
 }
 
+function toggleButtons(flag) {
+  if (!flag) {
+    document.getElementById("btnAddPerson").classList.add('hide-button');
+    document.getElementById("btnAddIdea").classList.add('hide-button');
+  } else {
+    document.getElementById("btnAddPerson").classList.remove('hide-button');
+    document.getElementById("btnAddIdea").classList.remove('hide-button');
+  }
+}
 
-
-
+function displayUserDetails(user) {
+  if (user) {
+    document.getElementById("user-name").innerText = user.displayName;
+    document.getElementById("user-email").innerText = user.email;
+  } 
+  else {
+    document.getElementById("user-name").innerHTML = '';
+    document.getElementById("user-email").innerHTML = '';
+  }
+}
 
 function hideOverlay(ev) {
   ev.preventDefault();
@@ -227,7 +270,8 @@ function hideDeletePersonOverlay(ev) {
 /**people functionality */
 //getPerson functionality
 async function getPeople() {
-  const querySnapshot = await getDocs(collection(db, "people")); //get a reference to the people collection
+  people = [];
+  const querySnapshot = await getDocs(collection(db, `/users/${authUser?.uid}/people`)); //get a reference to the people collection
   querySnapshot.forEach((doc) => {
     //getting the data
     const data = doc.data();
@@ -235,6 +279,11 @@ async function getPeople() {
     people.push({ id, ...data });
   });
   buildPeople(people);
+}
+
+function clearUserData() {
+  document.querySelector(".person-list").replaceChildren();
+  document.querySelector(".idea-list").replaceChildren();
 }
 
 //build person functionality
@@ -263,6 +312,8 @@ function buildPeople(people) {
     let person = people.filter(
       (person) => person.id === element.getAttribute("data-id")
     )[0];
+
+    element.addEventListener("click", handleSelectPerson);
 
     editBtn.addEventListener("click", (event) =>
       showEditPersonOverlay(event, element, person)
@@ -302,7 +353,7 @@ function handleSelectPerson(ev) {
 
 async function updateIdea(ev, element, idea) {
   ev.preventDefault();
-  const ideaRef = doc(collection(db, "gift-ideas"), idea.id);
+  const ideaRef = doc(collection(db, `/users/${authUser?.uid}/gift-ideas`), idea.id);
 
   let title = document.getElementById("titleEdit").value;
   let location = document.getElementById("locationEdit").value;
@@ -312,7 +363,7 @@ async function updateIdea(ev, element, idea) {
     location: location,
   });
 
-  document.querySelector(".overlay").classList.remove("active");
+  document.querySelectßor(".overlay").classList.remove("active");
   document.getElementById("editIdea").classList.remove("active");
 
   element.children[1].children[0].innerHTML = title;
@@ -321,7 +372,7 @@ async function updateIdea(ev, element, idea) {
 
 async function updatePerson(ev, element, person) {
   ev.preventDefault();
-  const personRef = doc(collection(db, "people"), person.id); //get reference for people
+  const personRef = doc(collection(db, `/users/${authUser?.uid}/people`), person.id); //get reference for people
 
   let name = document.getElementById("nameEdit").value;
   let month = document.getElementById("monthEdit").value;
@@ -342,7 +393,7 @@ async function updatePerson(ev, element, person) {
 }
 
 async function deletePerson(ev, element, person) {
-  await deleteDoc(doc(collection(db, "people"), person.id));
+  await deleteDoc(doc(collection(db,`/users/${authUser?.uid}/people`), person.id));
 
   document.querySelector(".overlay").classList.remove("active");
   document.getElementById("deletePersonSection").classList.remove("active");
@@ -353,7 +404,7 @@ async function deletePerson(ev, element, person) {
 }
 
 async function deleteIdea(ev, element, idea) {
-  await deleteDoc(doc(collection(db, "gift-ideas"), idea.id));
+  await deleteDoc(doc(collection(db, `/users/${authUser?.uid}/gift-ideas`), idea.id));
 
   document.querySelector(".overlay").classList.remove("active");
   document.getElementById("deletePersonSection").classList.remove("active");
@@ -369,7 +420,7 @@ async function handleSelectedIdea(ev) {
   const checked = li.children[0].children[0].checked;
 
   if (id) {
-    const docRef = doc(db, "gift-ideas", id);
+    const docRef = doc(db, `/users/${authUser?.uid}/gift-ideas`, id);
     await updateDoc(docRef, {
       bought: checked,
     });
@@ -377,7 +428,7 @@ async function handleSelectedIdea(ev) {
 }
 
 async function getIdeas(id) {
-  const ideaCollectionRef = collection(db, "gift-ideas"); //get reference for gift teams
+  const ideaCollectionRef = collection(db, `/users/${authUser?.uid}/gift-ideas`); //get reference for gift teams
   const docs = query(ideaCollectionRef, where("person-id", "==", id));
 
   const querySnapshot = await getDocs(docs);
@@ -455,7 +506,7 @@ async function createIdea() {
   };
 
   try {
-    const docRef = await addDoc(collection(db, "gift-ideas"), idea);
+    const docRef = await addDoc(collection(db, `/users/${authUser?.uid}/gift-ideas`), idea);
     idea.id = docRef.id;
 
     document.getElementById("titleAdd").value = "";
@@ -480,7 +531,7 @@ async function createPerson() {
     "birth-day": day,
   };
   try {
-    const docRef = await addDoc(collection(db, "people"), person);
+    const docRef = await addDoc(collection(db, `/users/${authUser?.uid}/people`), person);
     console.log("Document written with ID: ", docRef.id);
     document.getElementById("name").value = "";
     document.getElementById("month").value = "";
