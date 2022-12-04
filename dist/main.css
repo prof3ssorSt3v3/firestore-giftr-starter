@@ -76,10 +76,13 @@ ul {
 }
 .person-list li {
   margin: 1rem 0;
-  padding: 0.5rem 2rem;
+  padding: 0.75rem 2rem;
   cursor: pointer;
+  display: flex;
+  flex-direction: row;
 }
 .person-list li.selected {
+  border-radius: 0.4rem 0 0 0.4rem;
   background-color: var(--light-orange);
 }
 .person-list p.name {
@@ -93,29 +96,46 @@ ul {
   font-weight: 100;
   color: #777;
 }
+.person-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+.person-buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
 
 .idea-list li.idea {
   border: 1px solid #222;
   border-radius: var(--radii);
   margin: 1rem 0;
-  display: grid;
-  /*usenamedgridareas*/
-  grid-template-areas: 'tab top' 'tab bottom';
-  grid-template-columns: 1fr 4fr;
-  background-color: var(--very-light-orange);
+  display: flex;
+  flex-direction: row;
+  /* background-color: var(--very-light-orange); */
   -webkit-border-radius: var(--radii);
   -moz-border-radius: var(--radii);
   -ms-border-radius: var(--radii);
   -o-border-radius: var(--radii);
 }
+.noIdeas {
+  padding: 1rem;
+}
 .idea-list .idea label {
+  display: flex;
+  flex-direction: row;
+  gap: .25rem;
   font-size: 0.8rem;
   line-height: 1rem;
   font-weight: 100;
-  padding: 0.5rem;
+  padding: 2rem .5rem;
   color: #222;
   grid-area: tab;
   align-self: center;
+  background-color: var(--very-light-orange);
+  border-radius: var(--radii);
 }
 .idea-list .idea label:has(input[type='checkbox']:checked) {
   color: #555;
@@ -141,6 +161,20 @@ ul {
   background-color: #fff;
   border-bottom-right-radius: 0.3rem;
   grid-area: bottom;
+}
+.idea-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.idea-buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: var(--very-light-orange);
+  border-radius: var(--radii);
 }
 
 section.overlay {

@@ -7,15 +7,19 @@
     <title>Document</title>
     <script src="./bundle.js" type="module"></script>
     <link rel="stylesheet" href="./main.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
   </head>
   <body>
     <header>
       <h1>Fire-Giftr</h1>
       <h2>All Gifts Must Go!</h2>
+      <button id="signInBtn">Log In</button>
+      <button id="signOutBtn">Sign Out</button>
     </header>
     <main>
       <section class="people">
-        <h2>People <button id="btnAddPerson">Add Person</button></h2>
+        <h2>People <button id="btnAddPerson">Add Person</button>
+        </h2>
         <ul class="person-list">
           <li data-id="asdfasdf" class="person">
             <p class="name">Sample Name</p>
@@ -44,7 +48,7 @@
         </ul>
       </section>
     </main>
-    <section class="overlay active">
+    <section class="overlay inactive">
       <dialog id="dlgPerson" class="">
         <h2>Add Person</h2>
         <p>
@@ -73,10 +77,10 @@
         </p>
         <p>
           <button id="btnCancelPerson">Cancel</button>
-          <button id="btnSavePerson">Save</button>
+          <button id="btnSavePerson" data-id="">Save</button>
         </p>
       </dialog>
-      <dialog id="dlgIdea" class="active">
+      <dialog id="dlgIdea" class="inactive">
         <h2>Add Gift Idea</h2>
         <p>
           <label for="title">Title:</label>
@@ -98,7 +102,7 @@
         </p>
         <p>
           <button id="btnCancelIdea">Cancel</button>
-          <button id="btnSaveIdea">Save</button>
+          <button id="btnSaveIdea" data-id="">Save</button>
         </p>
       </dialog>
     </section>
