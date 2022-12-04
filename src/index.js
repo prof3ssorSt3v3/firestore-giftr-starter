@@ -14,7 +14,7 @@ import {
     onSnapshot,
     updateDoc,
 } from "firebase/firestore";
-import { getAuth, GithubAuthProvider, signInWithPopup } from "firebase/auth";
+import { FirebaseAuth, getAuth, GithubAuthProvider, onAuthStateChanged, signInWithPopup} from "firebase/auth";
 
 // https://fire-giftr-bdb35.firebaseapp.com/__/auth/handler
 
@@ -110,12 +110,8 @@ document.addEventListener("DOMContentLoaded", () => {
         .addEventListener("click", handleSelectIdea);
 
     document
-        .getElementById("signInBtn")
+        .getElementById("signInOutBtn")
         .addEventListener("click", attemptLogin);
-
-    document
-        .getElementById("signOutBtn")
-        .addEventListener("click", attemptLogout);
 
     loadInitialData();
 
@@ -124,7 +120,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function loadInitialData() {
     //load the people collection and display
-    getPeople();
     //select the first person on the list
     //load the gift-ideas collection and display
 }
@@ -137,17 +132,36 @@ provider.setCustomParameters({
     allow_signup: "true", //let the user signup for a Github account through the interface
 });
 
-// onAuthStateChanged(auth, (user) => {
-//     if (user) {
-//         // User is signed in, see docs for a list of available properties
-//         // https://firebase.google.com/docs/reference/js/firebase.User
-//         const uid = user.uid;
-//         // ...
-//     } else {
-//         // User is signed out
-//         // ...
-//     }
-// });
+onAuthStateChanged(auth, (user) => {
+
+    let signInOut = document.getElementById("signInOutBtn");
+
+    if (user) {
+        // User is signed in, see docs for a list of available properties
+
+        signInOut.innerHTML = `Sign Out`;
+        signInOut.removeEventListener("click", attemptLogin);
+        signInOut.addEventListener("click", attemptLogout);
+        // https://firebase.google.com/docs/reference/js/firebase.User
+        const uid = user.uid;
+        console.log("You're logged in");
+        document.querySelector("main").style.removeProperty("display");
+        getPeople();
+        // ...
+    } else {
+        // User is signed out
+        signInOut.innerHTML = `Log In`;
+        signInOut.addEventListener("click", attemptLogin);
+        signInOut.removeEventListener("click", attemptLogout);
+        console.log("You're logged out");
+        document.querySelector("main").style.display = "none";
+    }
+});
+
+async function getUser() {
+    const ref = await doc(db, "users", auth.currentUser.uid);
+    return ref; //if you need the user reference
+}
 
 function attemptLogin() {
     //try to login with the global auth and provider objects
@@ -162,29 +176,44 @@ function attemptLogin() {
 
             // The signed-in user info.
             const user = result.user;
-            // ...
+            const usersColRef = collection(db, "users");
+            setDoc(
+                doc(usersColRef, user.uid),
+                {
+                    displayName: user.displayName,
+                },
+                { merge: true }
+            ); 
+            onAuthStateChanged()
         })
         .catch((error) => {
             // Handle Errors here.
             const errorCode = error.code;
             const errorMessage = error.message;
             // The email of the user's account used.
-            const email = error.customData.email;
+            // const email = error.customData.email;
             // The AuthCredential type that was used.
             const credential = GithubAuthProvider.credentialFromError(error);
         });
 }
 
 function attemptLogout() {
-    console.log('Attempting to log out');
+    console.log("Attempting to log out");
+    auth.signOut();
 }
 
 
-
 async function getPeople() {
+    const userRef = await getUser();
+    console.log("getting user", userRef);
+    const peopleCollectionRef = collection(db, "people"); //collection we want to query
+    const docs = query(
+        peopleCollectionRef,
+        where('owner', '==', userRef)
+    );
     //call this from DOMContentLoaded init function
     //the db variable is the one created by the getFirestore(app) call.
-    const querySnapshot = await getDocs(collection(db, "people"));
+    const querySnapshot = await getDocs(docs);
     querySnapshot.forEach((doc) => {
         //every `doc` object has a `id` property that holds the `_id` value from Firestore.
         //every `doc` object has a doc() method that gives you a JS object with all the properties
@@ -210,12 +239,14 @@ function buildPeople(people) {
             }`;
             //Use the number of the birth-month less 1 as the index for the months array
             return `<li data-id="${person.id}" class="person">
-              <p class="name">${person.name}</p>
-              <p class="dob">${dob}</p>
-              <div class="person-buttons">
-                <span id="btnSavePerson" class="material-symbols-outlined edit">edit</span>
-                <span class="material-symbols-outlined delete">close</span>
-              </div>
+                <div class="person-text">
+                    <p class="name">${person.name}</p>
+                    <p class="dob">${dob}</p>
+                </div>
+                <div class="person-buttons">
+                    <span id="btnSavePerson" class="material-symbols-outlined edit">edit</span>
+                    <span class="material-symbols-outlined delete">close</span>
+                </div>
             </li>`;
         })
         .join("");
@@ -254,14 +285,17 @@ function showPerson(person) {
         }`;
         //Use the number of the birth-month less 1 as the index for the months array
         //replace the existing li with this new HTML
-        li.outerHTML = `<li data-id="${person.id}" class="person">
-      <p class="name">${person.name}</p>
-      <p class="dob">${dob}</p>
-      <div class="person-buttons">
-        <span id="btnSavePerson" class="material-symbols-outlined edit">edit</span>
-        <span class="material-symbols-outlined delete">close</span>
-      </div>
-    </li>`;
+        li.outerHTML = 
+        `<li data-id="${person.id}" class="person">
+        <div class="person-text">
+            <p class="name">${person.name}</p>
+            <p class="dob">${dob}</p>
+        </div>
+        <div class="person-buttons">
+            <span id="btnSavePerson" class="material-symbols-outlined edit">edit</span>
+            <span class="material-symbols-outlined delete">close</span>
+        </div>
+        </li>`;
     } else {
         //add to screen
         const dob = `${months[person["birth-month"] - 1]} ${
@@ -270,13 +304,16 @@ function showPerson(person) {
         //Use the number of the birth-month less 1 as the index for the months array
         const ul = document.querySelector("ul.person-list");
 
-        ul.innerHTML += `<li data-id="${person.id}" class="person">
-          <p class="name">${person.name}</p>
-          <p class="dob">${dob}</p>
-          <div class="person-buttons">
-            <span id="btnSavePerson" class="material-symbols-outlined edit">edit</span>
-            <span class="material-symbols-outlined delete">close</span>
-          </div>
+        ul.innerHTML += 
+        `<li data-id="${person.id}" class="person">
+            <div class="person-text">
+                <p class="name">${person.name}</p>
+                <p class="dob">${dob}</p>
+            </div>
+            <div class="person-buttons">
+                <span id="btnSavePerson" class="material-symbols-outlined edit">edit</span>
+                <span class="material-symbols-outlined delete">close</span>
+            </div>
         </li>`;
     }
     people.push(person);
@@ -475,6 +512,7 @@ async function savePerson() {
     let day = document.getElementById("day").value;
     if (!name || !month || !day) return; //form needs more info
     const person = {
+        owner: auth.currentUser.uid,
         name,
         "birth-month": month,
         "birth-day": day,
@@ -554,7 +592,7 @@ async function saveIdea() {
         console.log("this is selec", selectedPersonId);
         console.log(selectedIdeaId);
         console.log(personRef);
-        if (selectedIdeaId != "") {
+        if (selectedIdeaId != null) {
             console.log("inside edit idea");
 
             const ideaRef = doc(collection(db, "gift-ideas"), selectedIdeaId);
@@ -576,7 +614,7 @@ async function saveIdea() {
             getIdeas(selectedPersonId);
             document.querySelector("#btnSaveIdea").setAttribute("data-id", "");
         } else {
-            console.log(idea);
+            console.log("idea", idea);
             const docRef = await addDoc(collection(db, "gift-ideas"), idea);
             idea.id = docRef.id;
             //1. clear the form fields
